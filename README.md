@@ -90,3 +90,59 @@ rCore项目已经建立起了一个开发者社区，吸引着许多OS爱好者�
 还认识了Rust的疯狂粉丝兼校友luojia同学，太强了  
 我参加这次实习受益匪浅，一是Rust语言，二是OS，三是见识。希望我在实习结束的时候能拿出成果来。  
 也许许多年后，清华 OS 课的实验就是我们这群人写的hhh。  
+
+<span id="1"></span>
+
+## Day 1 (2020/08/08)
+今天从深圳做高铁回到广州大哥的家住几天。  
+晚上根据 zCore-Tutorial 重现了内核对象的代码，加深了对内核对象的理解。  
+下面定义内核对象的 trait ：  
+```Rust
+/// trait for kernel object
+pub trait KernelObject: DowncastSync + Debug {
+    /// get id of kernel object
+    fn id(&self) -> KoID;
+    /// get type of kernel object
+    fn type_name(&self) -> &str;
+    /// get name of kernel object
+    fn name(&self) -> String;
+    /// set name of kernel object
+    fn set_name(&self, name: &str);
+}
+```
+下面编写一个宏自动为内核对象实现`KernelObject` trait：  
+```Rust
+#[macro_export]
+macro_rules! impl_kobject {
+    ($class:ident $( $fn:tt )*) => {
+        // implement `KernelObject` trait for object
+        impl KernelObject for $class {
+            fn id(&self) -> KoID {
+                self.base.id
+            }
+            fn type_name(&self) -> &str {
+                stringify!($class)
+            }
+            fn name(&self) -> alloc::string::String {
+                self.base.name()
+            }
+            fn set_name(&self, name: &str) {
+                self.base.set_name(name)
+            }
+            $( $fn )*
+        }
+        impl core::fmt::Debug for $class {
+            fn fmt(
+                &self,
+                f: &mut core::fmt::Formatter<'_>,
+            ) -> core::result::Result<(),core::fmt::Error> {
+                f.debug_tuple(&stringify!($class))
+                    .field(&self.id())
+                    .field(&self.name())
+                    .finish()
+            }
+        }
+    };
+}
+```
+我们还实现了接口到具体类型的向下转换，并为上述逻辑写了单元测试。  
