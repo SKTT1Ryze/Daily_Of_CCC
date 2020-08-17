@@ -242,7 +242,25 @@ macro_rules! impl_kobject {
 
 
 
+<span id="Day009"></span>
 
+## Day 9 (2020/08/16)
+今天完成了 zircon-syscall 和 zircon-loader 层从 zCore 到 zCore-riscv 的迁移。  
+准备在 QEMU 中跑起 userboot 的时候，遇到了一个大障碍：  
++ 原版 zCore 需要用到zircon镜像 prebuilt/zircon/x64/userboot.so，这些镜像文件依赖于 Fuchsia 官方镜像，目前 Fuchsia 官方不支持 riscv，因此我目前无法获得适用于 zCore 的 riscv 上的 Fuchsia 镜像。
++ 我的理解是 zCore 现在可以在裸机或 QEMU 上跑 Fuchsia 原生用户程序，而 Fuchsia 官方目前只支持 x86 和 Arm 两种架构，再有由于 Fuchsia 是商业项目，因此他们可能不打算支持 riscv，这样的话想在 zCore 上跑 Fuchsia 用户程序的话道阻且长。  
+
+通过和学长，老师们交流，目前想到以下解决办法：  
++ 写一个简单 Fuchsia 小程序替代 userboot.so，先看看运行效果
++ 利用 loader 层底下的实现暂时先重写一个简陋的 zircon-loader，先让整个框架能跑在 loader 层以上，能在上层环境输出，以达到验证底层代码正确性的效果
++ 参照 rCore-Tutorial，整个重写 zircon-loader，不执着于跑 Fuchsia 用户程序的思路，而是跑自己用 Rust 写的用户程序
+
+明天再深入研究一下 zircon-loader 代码，并思考一下后续工作如何开展。  
+
+今天 LPL 季后赛 LGD 3：0 IG，惊呆我了。本来觉得 LGD 有可能赢，但没想到是连续碾压三局，一场 BO5 下来只用了一个多小时。  
+小花生还是猛啊，LGD 这老年三叉戟太顶了，就好像那句话：我虽然老了，但是你大爷还是你大爷。  
+puff 还是菜得可以，ning 也被小花生压制，IG 还是中上是大爹，队友都有点拉跨。  
+明天再忙一天实习的任务，后天就要开始复习考试了。  
 
 
 
