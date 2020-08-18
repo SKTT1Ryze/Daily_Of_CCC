@@ -262,7 +262,27 @@ macro_rules! impl_kobject {
 puff 还是菜得可以，ning 也被小花生压制，IG 还是中上是大爹，队友都有点拉跨。  
 明天再忙一天实习的任务，后天就要开始复习考试了。  
 
+<span id="Day010"></span>
 
+## Day 10 (2020/08/17)
+今天做了一些尝试。  
+首先是打算写一个盗版的 run_userboot 函数，让它加载一个 elf 文件然后创建一个主线程去执行它。运行起来后不出意料地出现 unimplement! 或者 panic!。  
+通过 rCore-Tutorial 中提供的 riscv64-unknown-elf-gdb 调试器调试加上一次打 log 重新编译运行，跟踪到 unimplement! 或者 panic! 出现的地方，试图排除 bug。但到最后发现很多出 panic 的原因是在 unsafe 代码中，这样一来就很难查出错误出在哪，毕竟 zCore 中加载的是 Fuchsia 官方镜像，而我这里只是随便找一个 elf 文件来加载，肯定问题会很多。  
+然后我就再写了一个更简单的 simple_run_userboot 函数，在这个函数中只提取出 elf 文件的入口地点，交给 proc.start 去运行。这样一来 panic 就不再出现了，程序应该是跳到了某个地址中执行，但是没有输出。  
+目前带来了一个新的问题就是：zCore 是对接 Fuchsia 用户程序的，如果我们不想对接 Fuchsia 而是 Rust 编译的面向 riscv 平台的程序的话，底下的内核实现需不需要改？要改多少？  
+另外就是我目前不清楚 zCore 里面的文件系统是怎么实现的，需要花时间去理解一下代码。  
+在上述的尝试过程中，途中遇到了一些 unimplement，我对其中的一些进行了实现或者暂时写了一些粗糙的实现，以让我的代码能跑在用户态。具体整理如下：  
++ 用 kernel-hal 中 unimplement 的函数中加上 kernel-hal-bare 中实现的函数链接，让代码转到 kernel-bare 中执行
++ 重写 memory 模块，实现了页帧分配器（使用现成的），al_frame_alloc，hal_frame_alloc_contiguous，hal_frame_dealloc 这三个在 kernel-hal 中定义但没有实现的函数，目前页帧分配已经可以正确使用
++ 将 print! 和 println! 宏从 console.rs 转到了 logging.rs，更好地对接原 zCore 的实现
++ 之前如果代码使用了 kcounter 相关的功能话，会报链接错误，现在修改了 linker.ld 文件使得代码可以正确链接
++ 在 thread.start 函数中原本没有在 riscv 平台下对 context 的处理，我这里为其加上了一些简单的实现，正确与否还得在后续的开发中观察和修改
++ 为某些实现增加了一些共用的成员函数，以便我可以写测试代码
+
+目前的进展大概就到这，往后要复习考试，可能会停滞一些了，在复习期间可能会抽时间给 zCore 加一点单元测试，争取在月底能在力所能及的范围做尽量多的事。  
+
+今晚打了几局 LOL，玩了一把厄菲流斯，在前期大劣势的情况下后面几波团战输出拉满，最终完成翻盘。这英雄连削了九次，削成这样了还能 c 我是没想到的。还打了几盘大乱斗，大乱斗是真的好玩hhh。  
+明天开始复习，今天放松一下。  
 
 
 
