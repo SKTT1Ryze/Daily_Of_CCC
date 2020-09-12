@@ -539,3 +539,27 @@ spike rust-pk hello_world
 这个实验还是可以的，我通过这个实验的确熟悉了一些 riscv 的特权级设计。  
 今天邵老师发了一个关于 Arm 虚拟化的 PPT，今天还没时间看，明天找时间看一下。  
 晚安。  
+
+
+<span id="Day035"></span>
+
+## Day 35 (2020/09/11)
+
+Virtualization is the process of running a virtual instance of a computer system in a layer abstracted from the actual hardware. Most commonly, it refers to running multiple operating systems on a computer system simultaneously.  
+Hypervisor:  
++ bare metal, run guest virtual machines directly on a system's hardware
++ hosted, behave more like traditional applications
+
+KVM, short for kernel-based virtual machine, is a part of the Linux kernel that can run virtual machines directly, although you can still use a system running KVM virtual machines as a normal computer itself.  
+
+A virtual machine is the emulated equivalent of a computer system that runs on top of another system. Virtual machines may have access to any number of resources: computing power, through hardware-assisted but limited access to the host machine's CPU and memory.  
+
+A container is actually just an isolated process that shared the same Linux kernel as the host operating system, as well as the libraries and other files needed for the execution of the program running inside of the container, often with a network interface such that the container can be exposed to the world in the same way as a virtual machine.  
+
+上面是早上看的一些关于虚拟化和 Hypervisor 和 容器的介绍。  
+
+今天下午睡了会觉，醒来差不多四点了，收拾收拾上课去了。  
+晚上本来准备赶快做完焦学姐设计的实验三然后看邵老师早上给我发的关于虚拟化的论文，但没想到一做就是一晚上。原因是一开始我没有看实验指导书后面的基础知识，那里有学姐加上的代码解释，方便我们读懂她写的内存管理模块代码。这导致我靠自己分析学姐的代码然后做这个实验，最后花的时间就比较长。不过还是锻炼了代码能力还是有好处的。  
+明天早上再早点起来看一下关于虚拟化的论文吧。  
+刚刚填了个 Rust 社区调查表，希望 Rust 越来越好，有种你们 20 年后不用 Rust！  
+晚安。  
