@@ -581,3 +581,11 @@ A container is actually just an isolated process that shared the same Linux kern
 打算做完学姐这边的实验之后继续做 zCore 到 riscv 的移植。做完学姐这个基于 riscv 代理内核的实验之后感觉对 riscv 上的 OS 的理解又加深不少。应该会对 zCore 的移植会有帮助。  
 组原实验也差不多要开始了，打算组原实验做完后学习 Chisel，其实我对龙芯杯有些想法，但是感觉这比赛没队友是搞不下去的，看情况吧。  
 晚安。  
+
+<span id="Day037"></span>
+
+## Day 37 (2020/09/13)
+今天早上去和学姐聊了聊关于这个实验的一些东西。因为学姐很好相处，一不小心就畅所欲言，说了好多东西，不知不觉聊到了中午 11 点半，结果和学姐一起去食堂吃中饭。吃饭的时候聊了聊一些学术以外的东西，发现学姐喜欢看日本漫画和日剧，顿时觉得可以聊的东西又多了起来。在交谈的过程中学姐有时透露出对现状和找工作的焦虑，觉得学姐身为研究生也不容易呀。  
+下午开始尝试在 Ubuntu 上在编译 riscv gnu 工具链。不使用 github 上编译完整工具链的方法，因为我们实验只用到 riscv64-unknown-elf-gcc 和 riscv64-unknown-elf-newlib 或许会加上 gdb 和 objdump，不需要编译完整的工具链。况且按照 github 上的方法编译完整工具链的话需要时间很长，非常麻烦。因此我们需要一些其他的编译方法。  
+经过长时间的尝试，最终在 Ubuntu 20 版本上可以在包管理器里安装 riscv64-unknown-elf-gcc，proxy kernel 和 spike 可以 clone github 上的项目进行编译，这部分没问题。但是 riscv64-unknown-elf-newlib 的问题无法解决， riscv64-unknown-elf-gcc hello.c -o hello 会报错找不到 stdio.h 类似的标准库，而我们的代理内核 proxy kernel 需要用到这些库。我尝试了 clone riscv/riscv-newlib 这个项目下来手动编译 newlib 库，编译时间非常久，编译完之后 make install，但是还是会报错说找不到 stdio.h。可能是我 make install 时路径不对，但是我目前不清楚怎么调整这个路径。后面有时间可以再尝试一下。  
+总之，今天的工作以失败告终。  
