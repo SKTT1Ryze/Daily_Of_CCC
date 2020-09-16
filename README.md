@@ -616,3 +616,23 @@ xrandr --output HDMI-1 --brightness 0.8
 现在卷，以后可能过的人上人的生活。40岁的人上人，想想就悲催。  
 经常问自己什么才是最重要的，现在我还答不上来，但我知道不是那些东西。  
 Rust 大法好！  
+
+<span id="Day039"></span>
+
+## Day 39 (2020/09/15)
+早上有组原课，课上讲了海明校验和 CRC 校验。海明校验大体能听懂，CRC 校验没听懂。  
+从下午 3 点到晚上 9 点完成了第一次的组原实验，总体来说还是比较简单的，做完实验后对海明校验理解更加深刻了。  
+然后继续 zCore 到 riscv 的移植。今晚的进展有：  
++ src/kernel_hal_bare/arch/riscv64/timer.rs
++ src/kernel_hal/dummy.rs frame_copy
++ src/kernel_hal/dummy.rs frame_flush
++ src/kernel_hal/dummy.rs timer_now
++ src/kernel_hal/dummy.rs timer_set
++ src/kernel_hal/dummy.rs timer_tick
++ src/kernel_hal_bare/mod.rs init
+
+主要是将 hal 层的一些实现给补上了，参考了 rCore 代码。  
+之前我在 proxy kernel 上开的 issure 有人回答了，看了下，大致知道他说这个东西已经不用了，可以忽略它。  
+我之前在油管发的视频下面有人评论，他在问我关于 NASM 汇编的问题，我也在评论区回答了他。  
+明天有清华大学操作系统专题训练课的会议，得早起。  
+晚安。  
