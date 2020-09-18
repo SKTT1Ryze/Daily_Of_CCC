@@ -733,3 +733,35 @@ Copy trait 的行为是一个隐式的行为，开发者不能重载 Copy 行为
 实现了 Sync 的类型，可以跨线程安全地传递共享（不可变）引用。  
 
 溜了溜了。  
+
+<span id="Day041"></span>
+
+## Day 41 (2020/09/17)
+今天早上组原课翘了，在寝室看 Arm 虚拟化论文和继续编译 GEM5。  
+然后在中午吃完饭回到寝室后，终于成功地编译出了 GEM5.  
+我下的是码云上的源码 [gem5source](https://gitee.com/mirrors/gem5source.git)，然后在阿里云服务器上，使用下面的编译命令：  
+```
+scons build/MIPS/gem5.fast -j 6
+```
+最终成功编译。  
+然后测试：  
+```
+./build/MIPS/gem5.fast configs/example/se.py -c tests/test-progs/hello/bin/mips/linux/hello
+```
+输出：  
+```
+**** REAL SIMULATION ****
+info: Entering event queue @ 0.  Starting simulation...
+info: Increasing stack size by one page.
+Hello World!
+Exiting @ tick 3050000 because exiting with last active thread context
+```
+
+ccc 大胜利！  
+然后后面也成功编译出了 X86 架构的 gem5.fast。  
+下午看完了那个 Arm 虚拟化的论文，还看了一个总体介绍 X86 虚拟化的文章。  
+晚上看 Learning gem5 学习 gem5 的使用，基本上就是在写一些 python 配置脚本。不是很懂这些 python 代码的含义。还没学完，明天继续。  
+今天还看了《Rust 编程之道》的一些内容。  
+12 点之后是日语学习时间。  
+晚安。  
+
