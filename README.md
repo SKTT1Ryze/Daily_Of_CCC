@@ -1109,7 +1109,7 @@ public:
 我自己编写了一个 Makefile，在项目目录下只需要运行 `make run` 就可以编译并且运行服务端程序。  
 该项目有两种模式，一个是在终端运行服务端和客户端，两者可以成功连接并且互传数据，二是在终端运行服务端，在浏览器输入对应 url，就可以访问服务端，具体来说是浏览器向服务端发送连接请求，然后我们可以接受请求并且向对方发送数据。  
 这里我实现了对某几个特定目录的请求，服务端将会分别发送不同的 http 报文给客户端，即浏览器，这些报文由 http 头部和 html 文件组成，报文成功发送过去后将会在浏览器上渲染出我们发送的 html 文件。对于 IP 地址正确，端口正确，但是访问目录不正确的请求，服务端会发送一个包含 404 html 的 http 回应报文，浏览器将会渲染出找不到相关页面的 html 页面。  
-该项目目前已经发布到 github 上开源，github 传送门：[github](https://github.com/SKTT1Ryze/CWebServer/tree/master).  
+该项目目前已经发布到 github 上开源，github 传送门：[CWebServer](https://github.com/SKTT1Ryze/CWebServer/tree/master).  
 该项目还有很多可以改进的地方，比如像前面说的，完善错误处理模块，如果报文发送失败，我们可以重新发送，等等。  
 另外一个就是添加线程池，使得我们的服务端可以同时处理多个请求，实现并发处理。  
 这个已经有一点想法了，我可以研究一下这个项目：[ThreadPool](https://github.com/progschj/ThreadPool).  
