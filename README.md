@@ -1061,3 +1061,57 @@ class MyFirGenerator(length: Int) extends Module {
 现在要完成计网实验一需要的大部分实现基础我都已经掌握了，明天开始写实验，打算通过 C++ 类将 socket 概念包装起来，并且模块化代码，从文件中读取服务端配置，增加线程池可以回应多个网页请求，尽量把这个东西写成一个好的项目。  
 感觉在 Linux 上进行 socket 编程还是很有趣的，感觉可以写很多东西。  
 溜了溜了。  
+
+<span id="Day060"></span>
+
+## Day 60 (2020/10/06)
+今天早上有我这学期最喜欢的组原课，老师这节课讲了存储系统的概述，包括存储系统的层级结构，SRAM 的基本设计等。  
+下午到晚上一直在写计网的第一次实验，最终得到的成果还不错。  
+我先封装了一个 Socket 类：  
+```cpp
+class Socket
+{
+private:
+    std::vector<int> sockfds;
+    std::vector<sockaddr_in> socket_addrs;
+public:
+    int sockfd_num;
+    Socket();
+    ~Socket();
+    int new_socket(int domain, int type, int protocol);
+    ErrorType set_addr(int index, sa_family_t family, in_addr_t addr, int port); 
+    ErrorType sbind(int index);
+    ErrorType slisten(int index, int queue_num);
+    ErrorType sconnect(int index);
+    ErrorType saccept(int index, int * new_sockfd);
+    ErrorType sread(int index, void * buf, size_t bytes);
+    ErrorType swrite(int index, const void * buf, size_t bytes);
+    ErrorType sclose(int index);
+};
+```
+这样我就可以通过一个 Socket 对象来实现一系列 socket 编程的操作，比如创建套接字，监听，连接到服务端等等。  
+同时我还定义了一个 Error 类来实现错误处理：  
+```cpp
+class Error
+{
+private:
+    std::vector<ErrorType> error_types;
+public:
+    Error();
+    ~Error();
+    void check(ErrorType etype);
+    int handle_error(ErrorType etype);
+};
+```
+但是目前对这个类的实现还很粗糙，对于一些错误只是将它打印出来而已。后面可能会完善这部分的实现。  
+
+整个项目目录结构清晰分明，源码在 src 目录，需要渲染的 html 文件在 html 目录，编译出来的目标文件在 target 目录。  
+我自己编写了一个 Makefile，在项目目录下只需要运行 `make run` 就可以编译并且运行服务端程序。  
+该项目有两种模式，一个是在终端运行服务端和客户端，两者可以成功连接并且互传数据，二是在终端运行服务端，在浏览器输入对应 url，就可以访问服务端，具体来说是浏览器向服务端发送连接请求，然后我们可以接受请求并且向对方发送数据。  
+这里我实现了对某几个特定目录的请求，服务端将会分别发送不同的 http 报文给客户端，即浏览器，这些报文由 http 头部和 html 文件组成，报文成功发送过去后将会在浏览器上渲染出我们发送的 html 文件。对于 IP 地址正确，端口正确，但是访问目录不正确的请求，服务端会发送一个包含 404 html 的 http 回应报文，浏览器将会渲染出找不到相关页面的 html 页面。  
+该项目目前已经发布到 github 上开源，github 传送门：[github](https://github.com/SKTT1Ryze/CWebServer/tree/master).  
+该项目还有很多可以改进的地方，比如像前面说的，完善错误处理模块，如果报文发送失败，我们可以重新发送，等等。  
+另外一个就是添加线程池，使得我们的服务端可以同时处理多个请求，实现并发处理。  
+这个已经有一点想法了，我可以研究一下这个项目：[ThreadPool](https://github.com/progschj/ThreadPool).  
+打算明天实验课研究一下。  
+晚安。  
