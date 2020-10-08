@@ -1115,3 +1115,35 @@ public:
 这个已经有一点想法了，我可以研究一下这个项目：[ThreadPool](https://github.com/progschj/ThreadPool).  
 打算明天实验课研究一下。  
 晚安。  
+
+<span id="Day061"></span>
+
+## Day 61 (2020/10/07)
+今天早上是计算机网络实验课，我的实验基本上已经写完了，所以到实验室的时候就打算叫老师来看看我写的代码。惊喜地发现计网实验课其中一位老师是我大数据处理课程的老师，这个老师很有趣，我和他很聊得来。  
+于是我就喊他来看看我写的 CWebServer，给他演示一下项目效果，介绍一下项目的结构和说一下我代码的设计。经过一阵愉快的讨论之后，我打算今天早上为我的 Server 实现多线程，具体做法是创建一个线程池来运行多个线程。  
+经过一阵子代码编写，踩坑和排错的过程后，我成功运行起来了一个多线程 Server 的 demo，在这期间遇到的报错老师给了很大帮助，主要的错误是由于我在多线程资源访问的时候共享资源没有上锁，后面我把那个共享资源变成了线程对象进行处理，这样一来 demo 就可以跑通了。  
+在和石老师进行交谈的过程中，我深深感受到了他身上的那股工程师的味道，那是和其他老师完全不同的一种感觉。和教我们班计网的理论课老师只会一些老掉牙的知识和纸上谈兵不一样，石老师一看就是做过正儿八经项目的人，具备着工程师的素质，懂得很多行业内的东西。这也是为什么我们很聊得来的原因之一。  
+实验课结束之后，我和石老师边走边聊。在聊天中我了解到石老师不仅工作过，他还做过很多项目，还有自己的公司。。。是在下肤浅了。  
+我们还聊了一下其他东西，关于工程能力，关于行业内的一些东西，总之今天早上是一个愉快的早上。  
+下午尝试了一下用 wireshark 抓包，这个软件可以在我机器上通过命令行运行了，但是这个抓到的包的数据怎么看，我还不是很清楚。后面了解到 chrome 有开发者工具，可以看到浏览器收发的数据，我跑了一下我写的 demo，确实能收到我发送的 http 报文。感觉还行。  
+下午剩下的时间就一直在摸鱼。  
+
+晚上看一下 Rust 嵌入式开发的相关文档，打算开始 Rust 嵌入式开发的学习。  
+
+What's a microcontroller？  
+A mircrocontroller is a system on a chip. Whereas your computer is made up of several discrete components: a processor, RAM sticks, a hard drive, an ethernet port, etc.; a microcontroller has all those components built into a single "chip" or package. This makes it possible to build systems with minimal part count.  
+
+What can I do with a microcontroller?  
+The main trait of these systems is that they operate without user intervention even if they expose a user interface like a washing machine does; most of their operation is done on their own.  
+The other common trait of these systems is that they control a process. And for that these systems usually have one or more sensors and one or more actuators. For example, an HVAC system has several sensors, thermometers and humidity sensors spread across some area, and several actuators as well, heating elements and fans connected to ducts.  
+
+Why use Rust and not C?
+Hopefully, I don't need to convince you here as you are probably familiar with the language differences between Rust and C. One point I do want to bring up is package management. C lacks an official, widely accepted package management solution whereas Rust has Cargo. This makes development much easier. And, IMO, easy package management encourages code reuse because libraries can be easily integrated into an application which is also a good thing as libraries get more "battle testing".  
+
+You might be surprised to hear that while "Arm-based" chips are quite popular, the company behind the "Arm" trademark (Arm Holdings) doesn't actually manufacture chips for purchase. Instead, their primary business model is to just design parts of chips. They will then license those designs to manufacturers, who will in turn implement the designs (perhaps with some of their own tweaks) in the form of physical hardware that can then be sold. Arm's strategy here is different from companies like Intel, which both designs and manufactures their chips.  
+
+今晚看了一些相关教程，对 Rust 嵌入式开发有了大概的了解，包括开发工具和开发环境等东西。同时对一些基本概念也都熟悉了一下，至少我知道我做嵌入式开发大概是要做什么了。  
+摸鱼。。。  
+买了一个 stm32f103 板子和 gd32vf103 板子，大概周 6 之前可以到，这周周末打算尝试一下这个 Rust 嵌入式了。期待期待。  
+今天晚上还帮同学解决了一些大数据处理实验相关的问题。  
+今天发生的事情还是比较多的，这里记录就这些吧，提前晚安。  
