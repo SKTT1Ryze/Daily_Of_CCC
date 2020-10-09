@@ -1147,3 +1147,41 @@ You might be surprised to hear that while "Arm-based" chips are quite popular, t
 买了一个 stm32f103 板子和 gd32vf103 板子，大概周 6 之前可以到，这周周末打算尝试一下这个 Rust 嵌入式了。期待期待。  
 今天晚上还帮同学解决了一些大数据处理实验相关的问题。  
 今天发生的事情还是比较多的，这里记录就这些吧，提前晚安。  
+
+<span id="Day062"></span>
+
+## Day 62 (2020/10/08)
+今天早上有组原课，老师讲了存储系统的一些东西，其中讲到存储系统的优化和创新的时候，基本上都是物理知识。  
+于是老师说存储领域真正做原创性的研究的人都是学物理的。  
+懂了，这就去重修物理。  
+下午去参加组会，这次组会老师们没来，但是有李博士坐镇，会议还是很顺利地进行，并且有很多值得讨论的内容。  
+第一个是 xvisor 这个开源项目：  
+> Xvisor is an open-source type-1 hypervisor, which aims at providing a monolithic, light-weight, portable, and flexible virtualization solution.  
+
+其中一个学长提到了这东西，并向我们演示了一下这个项目怎么跑起来。但是好像有一些 bug 学长还没解决。我打算晚上回寝室试一下这个项目，看能不能把这个东西成功运行起来。  
+
+第二个学长介绍了 RT-Thread 这个项目，这是个国产的开源项目，在国内很出名，出名到我即使不了解物联网的一些生态，也听说过很多遍 RTOS 这个名词，它是 RT-Thread 的缩写。  
+
+RT-Thread was born in 2006, it is an open source, neutral, and community-based real-time operating system (RTOS).  
+RT-Thread is mainly written in C language, easy to understand and easy to port(can be quickly port to a wide range of mainstream MCUs and module chips). It applies object-oriented programming methods to real-time system design, making the code elegant, structured, modular, and very tailorable.  
+RT-Thread has Standard version and Nano version. For resource-constrained microcontroller (MCU) systems, the NANO kernel version that requires only 3KB Flash and 1.2KB RAM memory resources can be tailored with easy-to-use tools; And for resource-rich IoT devices, RT-Thread can use the on-line software package management tool, together with system configuration tools, to achieve intuitive and rapid modular cutting, seamlessly import rich software packages, thus achieving complex functions like Android's graphical interface and touch sliding effects, smart voice interaction effects, and so on.  
+
+另外大家还讨论了一些其他方面的东西，最终我们决定近期要上板子，在板子上跑这个 xvisor。  
+会议期间李博士提到邵志远老师最近会带研究生学长们去一家嵌入式公司去了解一些东西，如果我有兴趣的话也可以跟着一起去。我自然是非常乐意，于是吃完晚饭后我联系了邵志远老师，但他说他车只能坐 5 个人，没位置了。（/捂脸）然后他说问一下研究生学长们有谁不想去的，就让我顶上。就这样吧。  
+晚上吃完饭回来后立即开始尝试 xvisor 这个项目，在老师服务器进行配置。一晚上下来，最终成果是将项目给成功配置好了，每一步的操作原理都懂，只是最终在 qemu 中跑的时候，卡在了 OpenSBI 运行之后的界面。意思是 OpenSBI 已经成功运行了，但是没有进入到 xvisor 编译出的目标文件里面去。换句话说，就是 xvisor 编译出来的东西 qemu 跑不起来。  
+就这？就这？  
+每一步都是按照官方文档来的，步骤肯定没有出错，linux-5.4， qemu， busybox， opensbi 的编译应该都是正确的，但是却跑不起来，那么原因大概率是下面几种了：  
++ xvisor 不支持 linux-5.4， 至少不支持在 riscv 架构下的 linux-5.4，好像听学长说他能跑 x86 的，但也是有 bug
++ xvisor 和当前版本的 qemu 不兼容，至少在 riscv 架构下不兼容
++ opensbi 有问题，但是由于 opensbi 一直以来维护得都不错，这个可能性比较小
++ linux 版本问题，可能其他版本就好了
+
+用一句话来概括：xvisor 有 bug。  
+
+明天打算先试下用 xvisor 跑下我之前鹏城实习写的 rcore-tutorial 的最小化内核，如果这个可以的话，那就是 linux 内核的问题了。  
+再尝试在 qemu 里面跑 linux 内核，如果不行的话那就是当前 qemu 版本或者 opensbi 版本之间不兼容。  
+然后尝试下用 luojia 写的 rustsbi 替换 opensbi 来做下尝试，如果可以的话那基本上就是 opensbi 的问题了。  
+我觉得最大的可能性是这个项目本身实现就有问题2333.  
+
+事实上今晚配置这个项目的环境还是遇到了比较多的坑，但是由于我的 linux 知识较为丰富和配环境的能力实在是强，一些坑都被我成功化解掉了。  
+晚安。  
