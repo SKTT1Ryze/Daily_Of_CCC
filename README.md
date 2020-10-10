@@ -1185,3 +1185,38 @@ RT-Thread has Standard version and Nano version. For resource-constrained microc
 
 事实上今晚配置这个项目的环境还是遇到了比较多的坑，但是由于我的 linux 知识较为丰富和配环境的能力实在是强，一些坑都被我成功化解掉了。  
 晚安。  
+
+<span id="Day063"></span>
+
+## Day 63 (2020/10/09)
+今天的事情有点多。  
+首先是 xvisor，我把早上的操作系统课给翘了来继续研究这个东西。  
+首先我在服务器上配置 rust 环境，打算在 xvisor 上跑我暑假用 rust 语言写的最小化内核。  
+但是我把镜像文件复制到 xvisor 中的对应目录后，用 qemu 启动的时候，还是会卡在 opensbi 启动界面。  
+我又从 xvisor 官网上下载了最新版的 xvisor-3.0 来试验，重新配置，但还是一样的结果。  
+因为是会卡在 opensbi 启动界面之后，于是我想是不是 sbi 的问题，没有正确加载 xvisor。  
+于是我就编译了 luojia 用 rust 语言写的 rustsbi，替换掉了 opensbi 进行尝试。  
+奇怪的事情发生了：  
+rustsbi 竟然成功加载出了 xvisor 的 init 界面：！  
+结果如图所示：  
+![xvisor_rustsbi](./img/xvisor_rustsbi.png)  
+
+神奇的知识增加了.jpg  
+看来问题是出在了 opensbi 上，可能是版本不对，我后面再去尝试多个版本。  
+据 luojia 说，opensbi 有两块，他写的 rustsbi 两块都支持了，但不知道 opensbi 有没有。  
+我觉得这项目之前跑的 demo 就是用的 opensbi，应该用 opensbi 是可以的，所以我打算后面尝试一下旧一点版本的 opensbi。  
+其实我更希望看到 rustsbi 能兼容这个项目，然后我们就可以抛弃 opensbi 这个屑了（滑稽）。  
+
+然后邵老师说他成功拉到了胡老师，他也开车去，于是我就有位子了，因此我周四就可以和他们一起去工业园参观了。有点开心。  
+
+晚上是大数据实验，这就比较少东西可以讲的了。主要就是 namenode 多次格式化之后会有一些问题，于是我把所有 slave 的 /home/hadoop/ 下面的东西都删掉了再重新格式化，这样解决了一些问题。但同时还有其他的问题没能解决。  
+回寝室后重装了一下 docker，但由于网络有点慢，就配置到一半先不管了。  
+
+我的 stm32f103 板子到了，同时还有 DAPLink 调试器。  
+研究了一下，已经可以使用 openocd 连接到了板子，并且可以用 arm-none-eabi-gdb 调试了。开发环境应该差不多了，明天就可以开心地玩耍了。  
+再玩一会 stm32，查阅一些东西，看下 rust 游戏开发领域有什么进展。  
+[RustGameDev](https://rust-gamedev.github.io/posts/newsletter-014/)  
+这里说到了很多支持 rust 的游戏引擎，或者用 rust 写的游戏引擎，我之前只知道 Piston 这个库而已，用这东西写游戏真的太锻炼编程能力了。  
+还看到一个轻量的 rust 多线程 Web 框架。这又联想到了计网，我那天计网实验一早上就写了个多线程 WebServer。  
+不过我主要方向不是网络，这东西就了解一下就好了，毕竟人的精力是有限的。  
+晚安吧。。  
