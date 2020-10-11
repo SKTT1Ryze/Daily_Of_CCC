@@ -1220,3 +1220,34 @@ rustsbi 竟然成功加载出了 xvisor 的 init 界面：！
 还看到一个轻量的 rust 多线程 Web 框架。这又联想到了计网，我那天计网实验一早上就写了个多线程 WebServer。  
 不过我主要方向不是网络，这东西就了解一下就好了，毕竟人的精力是有限的。  
 晚安吧。。  
+
+<span id="Day064"></span>
+
+## Day 64 (2020/10/10)
+今天是周六，我在寝室进行 Rust 嵌入式的学习。  
+昨晚已经大概知道怎么用 openocd 和 gdb 烧写板子和调试程序了。只不过有一些 bug，就是每次 load 之后，程序总是运行到一个加 HardFault_ 的函数里面去，并且嵌入这个函数里面的循环体里面出不来。  
+由于我是第一次玩 Rust 嵌入式，根本不知道这是什么原因。我去 google 上搜，也很少相关的资料。  
+弄了很久都不知道什么原因，难顶。  
+最后我找到了一篇 Stackflow 的提问，问题描述和我的情况一模一样，有个评论是说我的 memory layout 不对。后面经过一番查阅资料和研究，加上询问 luojia 最终发现，cortex-m-rt 这个 crate 需要我们指定特定板子的 memory layout，在 memory.x 文件里面，比如像这样：  
+```
+MEMORY
+{
+  /* NOTE 1 K = 1 KiBi = 1024 bytes */
+  /* TODO Adjust these memory regions to match your device memory layout */
+  /* These values correspond to the LM3S6965, one of the few devices QEMU can emulate */
+  FLASH : ORIGIN = 0x08000000, LENGTH = 64K
+  RAM : ORIGIN = 0x20000000, LENGTH = 20K
+}
+```
+每个板子的 memory layout 都不一样，我的板子是 stm32f103c8t6，看了它的用户手册之后我可以很容易的知道这个板子的 memory layout，于是就写了上面的 memory.x，然后编译为 --release 版本的编译目标，最终成功在我的板子上跑起来并可以调试了。  
+收获挺大的。这次 debug 让我知道了嵌入式开发需要根据每个板子的不同来调整自己的代码或者编译方式，还有每个板子有自己的设计比如 memory layout，和我们需要结合板子用户手册来进行开发。  
+RTRM: Reading The Reference Manual.  
+后面我就直接不看 rust-embedded discory book 了，直接看 embedded book，下面是一些学习笔记：  
+
+#![no_std] is a crate-level attribute that indicates that the crate will link to the core-crate instead of the std-crate. The libcore crate in turn is a platform-agnostic subset of the std crate which makes no assumptions about the system the program will run on. As such, it provides APIs for language primitives like floats, strings and slices, as well as APIs that expose processor features like atomic operations and SIMD instructions. However it lacks APIs for anything that involves platform integration. Because of these properties no_std and libcore code can be used for any kind of bootstrapping (stage 0) code like bootloaders, firmware or kernels.  
+
+Embedded systems can only get so far by executing normal Rust code and moving data around in RAM. If we want to get any information into or out of our system (be that blinking an LED, detecting a button press or communicating with an off-chip peripheral on some sort of bus) we're going to have to dip into the world of Peripherals and their 'memory mapped registers'.  
+
+然后我和洛佳买了 23 号去长沙的票了，参加 1024 程序员节，希望一切顺利，学校方面不会给太多障碍吧。  
+我的 gd32 板子也到了，打算明天试一下 riscv 生态的嵌入式开发，看看有什么不同。我现在发现目前嵌入式领域还是 arm 一家独大，所以我后面要学一下 arm 相关的知识了。  
+晚安。  
