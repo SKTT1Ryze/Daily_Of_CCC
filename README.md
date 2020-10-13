@@ -1251,3 +1251,94 @@ Embedded systems can only get so far by executing normal Rust code and moving da
 然后我和洛佳买了 23 号去长沙的票了，参加 1024 程序员节，希望一切顺利，学校方面不会给太多障碍吧。  
 我的 gd32 板子也到了，打算明天试一下 riscv 生态的嵌入式开发，看看有什么不同。我现在发现目前嵌入式领域还是 arm 一家独大，所以我后面要学一下 arm 相关的知识了。  
 晚安。  
+
+<span id="Day065"></span>
+
+## Day 65 (2020/10/11)
+今天是周日，又是可以写一天代码的日子。今天继续 Rust 嵌入式的学习。  
+今天主要是在看那个 Rust embedded book，下面是今天的学习笔记：  
+
+Semihosting is a mechanism that lets embedded devices do I/O on the host and is mainly used to log messages to the host console. Semihosting requires a debug session and pretty much nothing else (no extra wires!) so it's super convenient to use. The downside is that it's super slow: each write operation can take several milliseconds depending on the hardware debugger (e.g. ST-Link) you use.  
+
+Do not use debug::exit on hardware; this function can corrupt your OpenOCD session and you will not be able to debug more programs until you restart it.  
+
+若一个程序或子程序可以「在任意时刻被中断然后操作系统调度执行另外一段代码，这段代码又调用了该子程序不会出错」，则称其为可重入（reentrant或re-entrant）的。即当该子程序正在运行时，执行线程可以再次进入并执行它，仍然获得符合設計時預期的结果。与多线程并发执行的线程安全不同，可重入强调对单个线程执行时重新进入同一个子程序仍然是安全的。
+
+可重入概念是在单线程操作系统的时代提出的。一个子程序的重入，可能由于自身原因，如执行了jmp或者call，类似于子程序的递归调用；或者由于操作系统的中断响应。UNIX系统的signal的处理，即子程序被中断处理程序或者signal处理程序调用。所以，可重入也可称作“异步信号安全”。这里的异步是指信号中断可发生在任意时刻。 重入的子程序，按照后进先出线性序依次执行。  
+
+Safe Rust must never result in undefined behavior so non-reentrant functions must be marked as unsafe. Yet I just told that exception handlers can safely use static mut variables. How is this possible? This is possible because exception handlers can not be called by software thus reentrancy is not possible.  
+
+The HardFault exception is a bit special. This exception is fired when the program enters an invalid state so its handler can not return as that could result in undefined behavior. Also, the runtime crate does a bit of work before the user defined HardFault handler is invoked to improve debuggability.  
+
+Interrupts differ from exceptions in a variety of ways but their operation and use is largely similar and they are also handled by the same interrupt controller. Whereas exceptions are defined by the Cortex-M architecture, interrupts are always vendor (and often even chip) specific implementations, both in naming and functionality.  
+
++ Interrupts have programmable priorities which determine their handlers' execution order
++ Interrupts can nest and preempt, i.e. execution of an interrupt handler might be interrupted by another higher-priority interrupt
++ In general the reason causing the interrupt to trigger needs to be cleared to prevent re-entering the interrupt handler endlessly
+
+The general initialization steps at runtime are always the same:  
++ Setup the peripheral(s) to generate interrupts requests at the desired occasions
++ Set the desired priority of the interrupt handler in the interrupt controller
++ Enable the interrupt handler in the interrupt controller
+
+Peripherals are useful because they allow a developer to offload processing to them, avoiding having to handle everything in software. Similar to how a desktop developer would offload graphics processing to a video card, embedded developers can offload some tasks to peripherals allowing the CPU to spend its time doing something else important, or doing nothing in order to save power.  
+
+The RAM chip, ROM chip and I/O controller (the peripheral in this system) would be joined to the processor through a series of parallel traces known as a 'bus'. This bus carries address information, which selects which device on the bus the processor wishes to communicate with, and a data bus which carries the actual data. In our embedded microcontrollers, the same principles apply - it's just that everything is packed on to a single piece of silicon.  
+
+Interaction with these peripherals is simple at a first glance - write the right data to the correct address. For example, sending a 32 bit word over a serial port could be as direct as writing that 32 bit word to a certain memory address. The Serial Port Peripheral would then take over and send out the data automatically.  
+
+How can we reliably interact with these peripherals?  
++ Always use volatile methods to read or write to peripheral memory, as it can change at any time
++ In software, we should be able to share any number of read-only accesses to these peripherals
++ If some software should have read-write access to a peripheral, it should hold the only reference to that peripheral
+
+Imagine if we could pass around ownership of these peripherals, or offer immutable or mutable references to them?  
+Well, we can, but for the Borrow Checker, we need to have exactly one instance of each peripheral, so Rust can handle this correctly. Well, luckliy in the hardware, there is only one instance of any given peripheral, but how can we expose that in the structure of our code?  
+
+下面这个有关 Rust 里面单例模式的实现：  
+[Rust-singleton](https://www.zhihu.com/question/391694703)  
+
+休息时间内我看了一部旧番叫做《神薙》，看了之后还真的觉得有点好看。神奇的番剧增加了。  
+
+感觉 Rust 嵌入式开发挺深奥的，也挺有趣的，虽然我现在只接触到了嵌入式领域的冰山一角，但我感觉我挺喜欢这个领域的，软件和硬件交融。周四去嵌入式公司的时候要多了解一些东西。  
+本来想在这个周末在我的 stm32 板子上跑 RT-Thread 的，但还是没能腾出时间。  
+我的 gd32 板子没焊排线，因此今天没能尝试一下 riscv 生态的嵌入式开发。  
+今天看了一下 Rust Gamedev 领域的 news [rust-gamedev](https://rust-gamedev.github.io/posts/newsletter-014/)  
+感觉 rust 游戏开发的生态比我想象中要成熟不少，游戏引擎方面有 rd3,godot-rust, 优秀游戏作品有[veloren](https://veloren.net/)，一个开放世界的像素风格 RPG，图形渲染方面也有相关的研究和项目。  
+我现在主要精力还是会先放到嵌入式领域，游戏开发后面有时间的话会陆续去涉及，我以后也有去参加游戏开发的可能。  
+12 点之后学一下日语，12 月就要考 n2 了，这必须一次过，但目前来看问题不大。  
+晚安。  
+
+<span id="Day066"></span>
+
+## Day 66 (2020/10/12)
+今天有件大事发生。  
+早上是计算机网络课程和大数据处理课程，计网课我睡了一节课，精神多了，第二节课在摸鱼。  
+大数据处理课我写了一些 Shell 脚本用于实验中监测试验结果的变化，刚写完电脑就没电了。  
+下午把 OS 课翘了，在寝室做大数据处理实验，做得过程中发现实验要求观察的目录下的数据都没怎么变化，也想不通所以然，没办法只能记录下数据然后溜了。  
+本来下午还想继续研究怎么跑通那个 xvisor 的，好像没时间了。  
+看下手机，邵老师发了个重磅消息：  
+```
+11月底会有一个OS的比赛（性质类似龙芯杯），要求在RV的板子上做OS，板子已经从清华寄过来了，过两天到。你们几个本科生必须参赛啊！@车春池 。。。
+板子很挫，只有8MB的SRAM。我们这边的前期准备是把PKE移植上去，应该会写些支撑代码（SBI之类的），以及一些部署脚本。这事到时候就交给@车春池 负责了啊。我看了下5位本科生，可以组1-2个队
+比赛的内容是设计一大堆SYSCALL，支撑一组测试程序在RV的平台上的运行。
+我们参加这个比赛的关键是吸引更多参赛队用PKE来参加比赛，争取做到编码的时候可以用SPIKE调试（类似PKE的实验），调试好后用我们提供的脚本部署到RV的实际板子。部署的时候要选择SBI，不能用HTIF
+所以要提前准备，赶在赛题公布之前把可以部署的branch做出来，放到gitee的课程repo上去
+赛题在公布的时候，会一起公布国内课程建设相关的可用资源，包括清华的UCORE，我们的PKE，可能还有其他学校的一些东西。我感觉如果能支持上实际板子，PKE的设计思路，秒杀UCORE[Commando] 但文件系统可能是个麻烦事，板子听说是用SD卡启动的，文件系统要先单独做出来。等拿到了，就给一块给你们，或者两块都分给你们。
+```
+我。。天降大锅。。不好，兴奋起来了。  
+后面我应该是要把这事情当成第一要务来做了，其他事情统统靠边。  
+要忙起来了。加油！  
+
+首先要做的事情是把 PKE 移植到板子上跑，今晚先研究一下 PKE。  
+研究个屁！晚上利索地写了个 riscv 最小化内核，这个最小化内核调用了 opensbi 接口，我封装了一个输出字符的函数，并在 c_main 函数中调用。最终结果是这个最小化内核可以成功编译，并且可以在 qemu-system-riscv 中打印出字符。  
+
+有点开心。。不，简直太兴奋了。跑到宿舍外逛了几圈才跑回来。  
+最终成果如下：![cCore_rustsbi](./img/cCore_rustsbi.png)  
+
+花了点时间把这东西构建成一个小项目，发到 github 上：[cCore](https://github.com/SKTT1Ryze/cCore)  
+这个东西我称之为 cCore。  
+写这东西主要是为了测试如何用 c 调用 opensbi 接口，后面有时间的话会把它写成一个完善的玩具操作系统（可能用于 OS 课设）。  
+我还尝试了将 rustsbi 替换 opensbi，不出意料能行。毕竟 rustsbi > opensbi。  
+明天板子到了可能尝试玩一下那个板子，看有什么办法将这个 cCore 放到板子上跑一下。  
+晚安。  
