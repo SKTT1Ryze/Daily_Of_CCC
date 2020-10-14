@@ -1321,7 +1321,7 @@ Well, we can, but for the Borrow Checker, we need to have exactly one instance o
 ```
 11月底会有一个OS的比赛（性质类似龙芯杯），要求在RV的板子上做OS，板子已经从清华寄过来了，过两天到。你们几个本科生必须参赛啊！@车春池 。。。
 板子很挫，只有8MB的SRAM。我们这边的前期准备是把PKE移植上去，应该会写些支撑代码（SBI之类的），以及一些部署脚本。这事到时候就交给@车春池 负责了啊。我看了下5位本科生，可以组1-2个队
-比赛的内容是设计一大堆SYSCALL，支撑一组测试程序在RV的平台上的运行。
+比赛的内容是设计一大堆SYSCALL，支撑一组测试程序在RV的平台上的运行。  
 我们参加这个比赛的关键是吸引更多参赛队用PKE来参加比赛，争取做到编码的时候可以用SPIKE调试（类似PKE的实验），调试好后用我们提供的脚本部署到RV的实际板子。部署的时候要选择SBI，不能用HTIF
 所以要提前准备，赶在赛题公布之前把可以部署的branch做出来，放到gitee的课程repo上去
 赛题在公布的时候，会一起公布国内课程建设相关的可用资源，包括清华的UCORE，我们的PKE，可能还有其他学校的一些东西。我感觉如果能支持上实际板子，PKE的设计思路，秒杀UCORE[Commando] 但文件系统可能是个麻烦事，板子听说是用SD卡启动的，文件系统要先单独做出来。等拿到了，就给一块给你们，或者两块都分给你们。
@@ -1334,7 +1334,7 @@ Well, we can, but for the Borrow Checker, we need to have exactly one instance o
 研究个屁！晚上利索地写了个 riscv 最小化内核，这个最小化内核调用了 opensbi 接口，我封装了一个输出字符的函数，并在 c_main 函数中调用。最终结果是这个最小化内核可以成功编译，并且可以在 qemu-system-riscv 中打印出字符。  
 
 有点开心。。不，简直太兴奋了。跑到宿舍外逛了几圈才跑回来。  
-最终成果如下：![cCore_rustsbi](./img/cCore_rustsbi.png)  
+最终成果如下：![cCore_rustsbi](./img/cCore_rustsbi. png)  
 
 花了点时间把这东西构建成一个小项目，发到 github 上：[cCore](https://github.com/SKTT1Ryze/cCore)  
 这个东西我称之为 cCore。  
@@ -1342,3 +1342,22 @@ Well, we can, but for the Borrow Checker, we need to have exactly one instance o
 我还尝试了将 rustsbi 替换 opensbi，不出意料能行。毕竟 rustsbi > opensbi。  
 明天板子到了可能尝试玩一下那个板子，看有什么办法将这个 cCore 放到板子上跑一下。  
 晚安。  
+
+<span id="Day067"></span>
+
+## Day 67 (2020/10/13)
+今天基本上是波澜不惊。  
+早上起床后补下昨天的日志，看下文档，就去上组原课了。今天组原课讲了存储系统的最后一些部分和指令系统的开头部分。  
+我的 gd32vf103 板子到了，下午就尝试着玩一下这个板子。  
+这个板子上有 jtag 接口，我只需要将这个 jtag 接口连到 DAPLink 上，再将 DAPLink 通过 USB 连到电脑就行了。  
+问题是 openocd，我 google 搜了很久都没找到 openocd 连接 gd32vf103 的配置文件。  
+到最后在 github 上的一个 repo 里面看到，貌似 openocd 用于调试 riscv 的板子是有一个独立出来的项目的，我在包管理器里面下的 openocd 是不支持调试 riscv 的。  
+正打算尝试一下这个项目的时候，邵老师发消息跟我说板子到了，果然是 k210（/捂脸）。  
+于是我就去东五楼拿板子，并且和学姐聊了一下 OS 比赛有关的事情。  
+邵老师叫我先搭一下这个 k210 板子，我之前实习的时候玩过这个板子，我们有实习的同学配合清华的一个研究生学长把 rCore-Tutorial 移植到 k210 板子上跑了。我可以借鉴一下他们的成果。  
+我打算周三下午研究一下这个 k210 板子，先跑几个 demo，然后尝试把我昨天写的最小化内核放到 k210 上跑起来。看一个下午加一个晚上能不能成。  
+然后晚上做了一部分组原的运算器实验，还没做完就断网了。。  
+搜一下 wyf 学长把 rCore-Tutorial 在 k210 上跑的 repo。  
+看一下他们是怎么用 opensbi 在 k210 板子上把内核给跑起来的。目前看来好像是用 dd 命令将内核代码写到 opensbi 的目标文件后面。  
+晚安。  
+
