@@ -1497,7 +1497,7 @@ static uintptr_t mcall_console_putchar(uint8_t ch)
 + 可以在 k210 板子上使用 RustSBI 进行多核启动了
 + 基于 RustSBI 提供的接口实现了 printf 等裸机上格式化输出函数
 + 实现了内存分配
-+ 基本上实现了虚拟存储
++ 基本上实现了虚拟内存管理
 
 以上实现还没有经过严格的测试验证，后续会添加测试模块来完善。  
 
