@@ -65,6 +65,66 @@
 * [Day  58](#Day058)⭐
 * [Day  59](#Day059)
 * [Day  60](#Day060)
+* [Day  61](#Day061)  
+* [Day  62](#Day062)  
+* [Day  63](#Day063)  
+* [Day  64](#Day064)
+* [Day  65](#Day065)
+* [Day  66](#Day066)
+* [Day  67](#Day067)
+* [Day  68](#Day068)⭐
+* [Day  69](#Day069)
+* [Day  70](#Day070)
+* [Day  71](#Day071)  
+* [Day  72](#Day072)  
+* [Day  73](#Day073)  
+* [Day  74](#Day074)
+* [Day  75](#Day075)
+* [Day  76](#Day076)
+* [Day  77](#Day077)
+* [Day  78](#Day078)⭐
+* [Day  79](#Day079)
+* [Day  80](#Day080)
+* [Day  81](#Day081)  
+* [Day  82](#Day082)  
+* [Day  83](#Day083)  
+* [Day  84](#Day084)
+* [Day  85](#Day085)
+* [Day  86](#Day086)
+* [Day  87](#Day087)
+* [Day  88](#Day088)⭐
+* [Day  89](#Day089)
+* [Day  90](#Day090)
+* [Day  91](#Day091)  
+* [Day  92](#Day092)  
+* [Day  93](#Day093)  
+* [Day  94](#Day094)
+* [Day  95](#Day095)
+* [Day  96](#Day096)
+* [Day  97](#Day097)
+* [Day  98](#Day098)⭐
+* [Day  99](#Day099)
+* [Day  100](#Day100)
+* [Day  101](#Day101)  
+* [Day  102](#Day102)  
+* [Day  103](#Day103)  
+* [Day  104](#Day104)
+* [Day  105](#Day105)
+* [Day  106](#Day106)
+* [Day  107](#Day107)
+* [Day  108](#Day108)⭐
+* [Day  109](#Day109)
+* [Day  110](#Day110)
+* [Day  111](#Day111)  
+* [Day  112](#Day112)  
+* [Day  113](#Day113)  
+* [Day  114](#Day114)
+* [Day  115](#Day115)
+* [Day  116](#Day116)
+* [Day  117](#Day117)
+* [Day  118](#Day118)⭐
+* [Day  119](#Day119)
+* [Day  120](#Day120)
 
 <span id="0"></span>
 
@@ -1532,3 +1592,32 @@ static uintptr_t mcall_console_putchar(uint8_t ch)
 然后学下日语，睡了。  
 晚安。  
 
+<span id="Day075"></span>
+
+## Day 75 (2020/10/21)
+
+<span id="Day076"></span>
+
+## Day 76 (2020/10/22)
+这两天的日志也放在一起吧。  
+下面是看 xv6 文档的一些笔记：  
+Once the CPU has switched to supervisor mode, the kernel
+can then validate the arguments of the system call, decide whether the application is allowed to
+perform the requested operation, and then deny it or execute it. It is important that the kernel control
+the entry point for transitions to supervisor mode; if the application could decide the kernel entry
+point, a malicious application could, for example, enter the kernel at a point where the validation
+of arguments is skipped.  
+Each process has a thread of execution (or thread for short) that executes the process’s instructions. A thread can be suspended and later resumed. To switch transparently between processes,
+the kernel suspends the currently running thread and resumes another process’s thread. Much of
+the state of a thread (local variables, function call return addresses) is stored on the thread’s stacks.
+Each process has two stacks: a user stack and a kernel stack (p->kstack). When the process is
+executing user instructions, only its user stack is in use, and its kernel stack is empty. When the
+process enters the kernel (for a system call or interrupt), the kernel code executes on the process’s
+kernel stack; while a process is in the kernel, its user stack still contains saved data, but isn’t actively used. A process’s thread alternates between actively using its user stack and its kernel stack.
+The kernel stack is separate (and protected from user code) so that the kernel can execute even if a
+process has wrecked its user stack.  
+
+然后这两天完成了 xv6 往 k210 移植工作的时钟中断的部分。  
+移植记录：[timer.md](https://github.com/SKTT1Ryze/xv6-k210/tree/main/doc/timer.md)  
+坑是真的多（\苦笑）。  
+然后多核启动的移植记录也在写：[boot.md](https://github.com/SKTT1Ryze/xv6-k210/tree/main/doc/boot.md)  
