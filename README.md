@@ -1621,3 +1621,69 @@ process has wrecked its user stack.
 移植记录：[timer.md](https://github.com/SKTT1Ryze/xv6-k210/tree/main/doc/timer.md)  
 坑是真的多（\苦笑）。  
 然后多核启动的移植记录也在写：[boot.md](https://github.com/SKTT1Ryze/xv6-k210/tree/main/doc/boot.md)  
+
+<span id="Day077"></span>
+
+## Day 77 (2020/10/23)
+
+<span id="Day078"></span>
+
+## Day 78 (2020/10/24)
+
+<span id="Day078"></span>
+
+## Day 78 (2020/10/25)
+23 ~ 25 这三天和 luojia 去长沙参加 1024 程序员节活动，今晚才回到寝室，因此把这三天的日志放在一起写。  
+首先 23 号和 luojia 坐高铁去长沙，路上和他聊了一下 k210 上移植 OS 的事情，他和我说了一点就是 k210 没有 S 态外部中断，于是他在他写的 RustSBI 里面开了一个“洞”，使得我们可以在 S 态处理 k210 的外部中断。这个我还没尝试过，先不详细展开。  
+24 号我们去了马栏山文化产业园参会，听了很多讲座，包括华为鸿蒙系统和 Linux 内核开发者大会等等，见到了很多操作系统行业的大神。此外，我们还得知清华大学的陈渝老师也到了现场，可惜没能和陈老师见面。我们在听会之余还领取了许多小礼物，包括华为鸿蒙开源社区的一件文化衫。我们在华为鸿蒙系统的摊位看到了一块 RISC-V 核的板子，我们非常感兴趣，对那块板子观摩了一会。这个板子有 jtag 接口，在上面跑了一个鸿蒙系统作为展示，感觉挺好的。我们参加这个活动主要不是想要来学习一下那些硬核的知识，因为对我来说那些层面的东西还都是比较高深的。我们希望通过这个活动更加深入了解一下中国目前在操作系统和嵌入式领域的一些生态，看一下行业的大牛们都在研究什么东西，了解一下趋势。  
+然后那天晚上我们去了橘子洲头玩了一下，和当初我和舍友去武汉长江大桥的体验差不多，江边的景色都很漂亮，江风吹得很舒服。可以我们不能下到岸边去近距离感受江面的波动。  
+然后 25 号早上休息一下，下午就会武汉了。在长沙期间，我利用空余时间写了一下 xv6-k210 的 vm 部分的测试，测试结果表明页表基本上是可以正常工作的。  
+然后 25 号晚上研究在 k210 上的外部中断问题，主要是先在看一下清华的吴一凡学长之前整理的关于 k210 移植的一些笔记：[wyf-osnotes](https://github.com/wyfcyx/osnotes/tree/master/book)  
+下面是整理的一些点：  
+首先是中断代理：  
++ RISC-V 存在 M 态中断代理寄存器`mideleg`，还有 M 态异常代理寄存器`medeleg`
++ 所有的中断/异常默认均在 M 态处理，除非设置`mideleg/medeleg`寄存器
++ 中断与异常不同的地方在于各类中断均分成 M/S/U Mode，而异常与特权级无关
++ 通过设置`mideleg`可以将 S/U Mode 中断处理代理到 S Mode 处理
++ 通过设置`sideleg`可以将 U Mode 中断处理代理到 U Mode 处理
++ 一个 X Mode 中断不会被代理到特权级低于 X 的 Mode 上处理
+
+结合中断和特权级，中断处理的完整过程如下：  
++ 假设在处于 X Mode 的 hart 上接收到 Y Mode 中断，首先决定是否处理。若 Y 优先级高于 X，则发生抢占，必定处理;若 Y 优先级低于 X，则此中断被屏蔽，不进行处理;若 Y 优先级与 X 相同，需要`xstatus, xie`相关使能打开，才进行处理。  
++ 如果要进行处理，则依次查看中断代理寄存器`mideleg/sideleg`，决定到哪个特权级处理该中断。  
+
+软件代理和硬件代理：  
++ 刚才提到的通过设置`mideleg/sideleg`，在中断到来时硬件自动将中断代理到相应的特权级处理，称为硬件代理
++ 与之对应，在中断到来时，不经过硬件代理，而在中断处理函数中以软件的手段将中断转发到其他特权级处理，则可称为软件代理
++ OpenSBI 的时钟中断处理是一个比较典型的例子，详细的在这里不做介绍。  
+
+串口中断：  
++ 串口中断属于外部中断
++ k210 上 S 态外部中断不存在
++ S 态软中断可以受到，只需要设置 SSIP 标志位
+
+一些后续可能用得上的资料：  
++ [sysctl](https://github.com/kendryte/kendryte-standalone-sdk/blob/develop/lib/drivers/sysctl.c)
++ [PLIC驱动](https://github.com/kendryte/kendryte-standalone-sdk/blob/develop/lib/drivers/plic.c)
++ [CLINT驱动](https://github.com/kendryte/kendryte-standalone-sdk/blob/develop/lib/drivers/clint.c)
++ [高速串口UARTHS驱动](https://github.com/kendryte/kendryte-standalone-sdk/blob/develop/lib/drivers/uarths.c)
++ [串行外设总线SPI驱动](https://github.com/kendryte/kendryte-standalone-sdk/blob/develop/lib/drivers/spi.c)
++ [SD卡驱动](https://github.com/kendryte/kendryte-standalone-demo/blob/develop/sd_card/sdcard.c)
++ kendryte 的一些文档：[kendryte-doc](https://dl.sipeed.com/MAIX/SDK/Document)
++ kendryte 官方的 SDK demo 程序：[kendryte-sdk-demo](https://github.com/kendryte/kendryte-standalone-demo)
+
+
+驱动程序开发：  
++ 设备寄存器分成状态数据寄存器，以 MMIO 的形式访问
++ 外部中断：PLIC 的中断分发机制
++ 嵌入式系统外设
++ 驱动程序框架
+
+嵌入式系统常用外设：  
++ 串口：通用异步收发器 UART
++ 外存设备：Flash/SDCard
++ 总线设备：SPI/APB/USB
++ GPIO/PLL
+
+
+现在我主要是想要解决 xv6 uart 这部分往 k210 上移植的问题，或者说我想要在我的内核中实现与 k210 外设的通信，这涉及到很多陌生的知识，比如说 CLINT，PLIC，驱动等等。而 wyf 学长之前的笔记里面有很多相关的内容，还有他在 k210 上的一些研究成果，现在好像他已经可以彻底解决 k210 外部中断的问题了。我后面会先去补充一下我比较陌生的一些知识，然后仔细分析一下 wyf 学长做的工作，应该可以完成 xv6 这些非常偏硬件的部分的移植。这部分移植要是成功了，后面的工作应该难度就不会太大了。  
