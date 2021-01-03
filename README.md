@@ -2695,6 +2695,61 @@ match 2020 年 {
 9 点多回到寝室后，跟舍友聊了很多程序员感兴趣的话题，不知不觉就到了 11 点多了。  
 晚安吧，2021 我来了。  
 
+<span id="Day142"></span>
+
+## Day 142 (2021/01/02)
+今天主要是在写一个测试 load-store 指令的测试，本想参照 AM 里面的测试来写的，但是发现这样并不能直接测试到 load-store 指令的正确性。  
+于是就写了几个内联汇编函数：  
+```Rust
+#[inline]
+unsafe fn lh(paddr: usize) -> u32 {
+    let mut res: u32;
+    llvm_asm!("
+        li      t0, (1 << 17)
+        csrrs   t0, mstatus, t0
+        lh     $0, 0($1)
+        csrw    mstatus, t0
+    "
+        :"=r"(res) 
+        :"r"(paddr)
+        :"t0", "t1");
+    res
+}
+
+#[inline]
+unsafe fn lhu(paddr: usize) -> u32 {
+    let mut res: u32;
+    llvm_asm!("
+        li      t0, (1 << 17)
+        csrrs   t0, mstatus, t0
+        lhu     $0, 0($1)
+        csrw    mstatus, t0
+    "
+        :"=r"(res) 
+        :"r"(paddr)
+        :"t0", "t1");
+    res
+}
+
+#[inline]
+unsafe fn lwu(paddr: usize) -> u32 {
+    let mut res: u32;
+    llvm_asm!("
+        li      t0, (1 << 17)
+        csrrs   t0, mstatus, t0
+        lwu     $0, 0($1)
+        csrw    mstatus, t0
+    "
+        :"=r"(res) 
+        :"r"(paddr)
+        :"t0", "t1");
+    res
+}
+```
+这样一来测试就很方便了。llvm_asm 宏真是个好东西，有时间去系统学一下怎么写。  
+后面的时间去了解了一下 `embedded-hal` 标准，晚上也和洛佳关于这个东西聊了一下，具体内容就不细说了。  
+后面的工作应该是会去了解一下 async/await，nb crate，stm32f30x-hal 这几个东西。要做的东西还挺多的。  
+晚安。  
 
 
 
