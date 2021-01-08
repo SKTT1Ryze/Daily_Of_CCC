@@ -2872,7 +2872,62 @@ Decode 单元接收一个 CtrlFlow 和产生一个 CfCtrl。
 晚上把测试跑完就先回寝室了，明天早上早点来。  
 晚安。  
 
+<span id="Day148"></span>
 
+## Day 148 (2021/01/08)
+学习 PLIC：https://github.com/riscv/riscv-plic-spec/blob/master/riscv-plic.adoc  
+
+PLIC Memory Map:  
+```
+base + 0x000000: Reserved (interrupt source 0 does not exist)
+base + 0x000004: Interrupt source 1 priority
+base + 0x000008: Interrupt source 2 priority
+...
+base + 0x000FFC: Interrupt source 1023 priority
+base + 0x001000: Interrupt Pending bit 0-31
+base + 0x00107C: Interrupt Pending bit 992-1023
+...
+base + 0x002000: Enable bits for sources 0-31 on context 0
+base + 0x002004: Enable bits for sources 32-63 on context 0
+...
+base + 0x00207F: Enable bits for sources 992-1023 on context 0
+base + 0x002080: Enable bits for sources 0-31 on context 1
+base + 0x002084: Enable bits for sources 32-63 on context 1
+...
+base + 0x0020FF: Enable bits for sources 992-1023 on context 1
+base + 0x002100: Enable bits for sources 0-31 on context 2
+base + 0x002104: Enable bits for sources 32-63 on context 2
+...
+base + 0x00217F: Enable bits for sources 992-1023 on context 2
+...
+base + 0x1F1F80: Enable bits for sources 0-31 on context 15871
+base + 0x1F1F84: Enable bits for sources 32-63 on context 15871
+base + 0x1F1FFF: Enable bits for sources 992-1023 on context 15871
+...
+base + 0x1FFFFC: Reserved
+base + 0x200000: Priority threshold for context 0
+base + 0x200004: Claim/complete for context 0
+base + 0x200008: Reserved
+...
+base + 0x200FFC: Reserved
+base + 0x201000: Priority threshold for context 1
+base + 0x201004: Claim/complete for context 1
+...
+base + 0x3FFE000: Priority threshold for context 15871
+base + 0x3FFE004: Claim/complete for context 15871
+base + 0x3FFE008: Reserved
+...
+base + 0x3FFFFFC: Reserved
+```
+
+If PLIC supports Interrupt Priorities, then each PLIC interrupt source can be assigned a priority by writing to its 32-bit memory-mapped priority register.  
+
+The current status of the interrupt source pending bits in the PLIC core can be read from the pending array, organized as 32-bit register.  
+
+Address	Description	Note
+BASE + 0x0	msip	Machine mode software interrupt (IPI)
+BASE + 0x4000	mtimecmp	Machine mode timer compare register for Hart 0
+BASE + 0xBFF8	mtime	Timer register  
 
 
 
