@@ -2930,6 +2930,16 @@ BASE + 0x4000	mtimecmp	Machine mode timer compare register for Hart 0
 BASE + 0xBFF8	mtime	Timer register  
 
 
+<span id="Day149"></span>
+
+## Day 149 (2021/01/09)
+今天中午跟学长学姐们去外面吃海鲜，回来已经是 2 点了，顾不上睡觉直接开始工作。  
+下午的工作效率还是可以的。  
+尝试在 rust-xs-evaluation  里面实现中断逻辑，但是出现了很神奇的 bug，就是它在不断进入 main 函数，还没修好就吃饭了。  
+晚上打火锅，挺好的，但学长们打火锅的时候放电影看，看完一部了但还没吃完，然后又放了一部，这部是《三傻大闹宝莱坞》，结果一看就停不下来了，看完之后 10 点多了。。。。  
+滑稽滑稽。  
+今天先这样，睡了。  
+
 
 
 
