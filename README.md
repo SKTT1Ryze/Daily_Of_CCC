@@ -3086,5 +3086,13 @@ BASE + 0xBFF8	mtime	Timer register
 除此之外大概就是各种摸鱼了。想快进到 27 号回家打游戏。  
 晚安。  
 
+<span id="Day165"></span>
+
+## Day 165 (2021/01/25)
+今天代码量还是很少，主要是在看一些东西。  
+首先按照[这里](https://rust-lang.github.io/async-book/09_example/00_intro.html)的教程把异步 server 的代码敲了一遍，对 `async-std` 的使用有了一定的了解。  
+然后在看这个： [RTIC](https://rtic.rs/0.5/book/en/)。这是一个中断驱动的并发运行时。  
+然后晚上是组会时间，这可能是我在北京参加的最后一次组会了，得好好表现。  
+今天就这样吧，晚安。  
 
 
