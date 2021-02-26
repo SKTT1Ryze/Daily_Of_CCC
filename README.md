@@ -3476,3 +3476,14 @@ github repo 在这里：https://github.com/SKTT1Ryze/top-k
 安顿下来后，立马就打开电脑开始干活了，终于在晚上 10 点之前把小作业基本做完了。  
 大概明天就可以交差然后开始写协程内核了。  
 晚安。  
+
+<span id="Day196"></span>
+
+## Day 196 (2021/02/25)
+今天早上终于把那道小作业完整做好了。  
+github repo 在这里：https://github.com/SKTT1Ryze/top-k  
+小作业的答案在这里：https://github.com/SKTT1Ryze/top-k/tree/main/example  
+已经完善好整个项目，并且发给 PingCap 的 HR 了。  
+希望能顺利通过吧，还有几轮面试，也希望顺利，只不过我没什么面试经验罢了，算法也懂得不是很多，尽力而为吧。  
+今天是在大哥家住的第一天，感觉非常舒适，家里有个机器人帮忙打扫，豆浆机打出的豆浆也很好喝，五星好评。  
+晚安。  
