@@ -51,14 +51,128 @@ github: https://github.com/SKTT1Ryze
 
 ## Rust 语言
 + **21 世纪的语言新星**(ref: luojia)
-+ Rust 的**安全哲学**（为了解决内存安全问题，对比 C/C++ 和 Go, java等）
++ Rust 的**安全哲学**
 + 所有权，生命周期
 + 无垃圾回收，极小的运行时，同时兼顾安全与高效
 
 ---
 
+## 所有权
+```Rust
+// s 是这个字符串值的所有者
+let s = String::from("hello_world");
+println!("{}", s);
+
+// 将所有权转移到 c 变量
+let c = s;
+
+// 尝试打印 s 的值，但 s 的所有权已经转移，因此编译器会报错
+println!("{}", s);
+
+```
+编译器报错：  
+```
+error[E0382]: borrow of moved value: `s`
+  --> src/main.rs:10:20
+   |
+3  |     let s = String::from("hello_world");
+   |         - move occurs because `s` has type `String`, which does not implement the `Copy` trait
+...
+7  |     let c = s;
+   |             - value moved here
+...
+10 |     println!("{}", s);
+   |                    ^ value borrowed here after move
+```
+
+---
+
+## 所有权
+```Rust
+// s 是这个字符串值的所有者
+let s = String::from("hello_world");
+println!("{}", s);
+
+// c 获得 s 的借用
+let c = &s;
+
+// s 的所有权没有转移，因此可以成功编译
+println!("{}", s);
+```
+
+---
+## 生命周期机制
+```Rust
+// 定义一个引用
+let r;
+
+{
+    let s = String::from("lifetime");
+    // r 获取字符串 s 的引用
+    r = &s;
+} // s 的值在这里被丢弃
+
+// 尝试使用 r 的值，编译报错
+println!("r: {}", r);
+```
+编译器报错：  
+```
+error[E0597]: `s` does not live long enough
+  --> src/main.rs:8:13
+   |
+8  |         r = &s;
+   |             ^^ borrowed value does not live long enough
+9  |     } // s 的值在这里被丢弃
+   |     - `s` dropped here while still borrowed
+...
+12 |     println!("r: {}", r);
+   |                       - borrow later used here
+```
+
+---
+## 生命周期注解
+ref: https://kaisery.github.io/trpl-zh-cn/ch10-03-lifetime-syntax.html  
+```Rust
+fn longest(x: &str, y: &str) -> &str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+```
+编译器报错：  
+```
+error[E0106]: missing lifetime specifier
+ --> src/main.rs:5:33
+  |
+5 | fn longest(x: &str, y: &str) -> &str {
+  |               ----     ----     ^ expected named lifetime parameter
+  |
+  = help: this function's return type contains a borrowed value, but the signature does not say whether it is borrowed from `x` or `y`
+help: consider introducing a named lifetime parameter
+  |
+5 | fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+  |           ^^^^    ^^^^^^^     ^^^^^^^     ^^^
+```
+
+---
+## 生命周期注解
+ref: https://kaisery.github.io/trpl-zh-cn/ch10-03-lifetime-syntax.html  
+```Rust
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+```
+
+---
+
 ## Rust 语言
-+ 强大的类型系统，Trait 语法（可以考虑给个例子），支持泛型（常量泛型，如果时间足够的话可以给个例子），函数式编程
++ 强大的类型系统，Trait 语法，支持泛型（常量泛型），函数式编程
 + 友好的包管理（相比 C/C++ 是一个大优势）
 + 卫生宏，过程宏（内部展开，不影响上下文）
 + 成长的社区
