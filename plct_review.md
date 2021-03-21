@@ -17,7 +17,6 @@ marp: true
 
 ## **Outline**
 + RISC-V 生态
-+ Rust 语言
 + RISC-V 与嵌入式
 + Rust 语言与嵌入式
 + Rust 语言与 RISC-V 嵌入式
@@ -28,6 +27,7 @@ marp: true
 + 开放的精简指令集架构，完全开源，设计简洁，模块化设计（基本指令集 + 扩展指令集）
 + 与 X86 架构对比：简化芯片开发，抛弃历史包裹，但目前在高性能处理核领域稍逊
 + 与 Arm 架构对比：开放，大道至简，但生态上需要进一步发展
++ 问题：IP 碎片化和高性能
 
 ---
 
@@ -44,140 +44,87 @@ marp: true
     - 设计成本较低：简洁的设计风格（规整的指令结构，简单的寄存器组成），模块化
     <!-- - 维护成本较低：todo -->
     - 架构授权：完全开源，而 Arm 需要支付昂贵的授权费
-+ SBI 标准，便于移植运行在 S 态的操作系统
-
----
-
-## **Rust 语言**
-+ **21 世纪的语言新星**(ref: luojia)
-+ Rust 的**安全哲学**
-+ 所有权，生命周期
-+ 无垃圾回收，极小的运行时，同时兼顾安全与高效
-
----
-
-## **所有权**
-```Rust
-// s 是这个字符串值的所有者
-let s = String::from("hello_world");
-println!("{}", s);
-// 将所有权转移到 c 变量
-let c = s;
-// 尝试打印 s 的值，但 s 的所有权已经转移，因此编译器会报错
-println!("{}", s);
-```
-编译器报错：  
-```
-error[E0382]: borrow of moved value: `s`
-  --> src/main.rs:10:20
-   |
-3  |     let s = String::from("hello_world");
-   |         - move occurs because `s` has type `String`, which does not implement the `Copy` trait
-...
-7  |     let c = s;
-   |             - value moved here
-...
-10 |     println!("{}", s);
-   |                    ^ value borrowed here after move
-```
-
----
-
-## **所有权**
-```Rust
-// s 是这个字符串值的所有者
-let s = String::from("hello_world");
-println!("{}", s);
-// c 获得 s 的借用
-let c = &s;
-// s 的所有权没有转移，因此可以成功编译
-println!("{}", s);
-```
-
----
-## **生命周期机制**
-```Rust
-// 定义一个引用
-let r;
-{
-    let s = String::from("lifetime");
-    // r 获取字符串 s 的引用
-    r = &s;
-} // s 的值在这里被丢弃
-// 尝试使用 r 的值，编译报错
-println!("r: {}", r);
-```
----
-
-## **生命周期机制**
-编译器报错：  
-```
-error[E0597]: `s` does not live long enough
-  --> src/main.rs:8:13
-   |
-8  |         r = &s;
-   |             ^^ borrowed value does not live long enough
-9  |     } // s 的值在这里被丢弃
-   |     - `s` dropped here while still borrowed
-...
-12 |     println!("r: {}", r);
-   |                       - borrow later used here
-```
-
----
-## **生命周期注解**
-ref: https://kaisery.github.io/trpl-zh-cn/ch10-03-lifetime-syntax.html  
-```Rust
-fn longest(x: &str, y: &str) -> &str {
-    if x.len() > y.len() {
-        x
-    } else {
-        y
-    }
-}
-```
-编译器报错：  
-```
-error[E0106]: missing lifetime specifier
- --> src/main.rs:5:33
-  |
-5 | fn longest(x: &str, y: &str) -> &str {
-  |               ----     ----     ^ expected named lifetime parameter
-  |
-  = help: this function's return type contains a borrowed value, but the signature does not say whether it is borrowed from `x` or `y`
-help: consider introducing a named lifetime parameter
-  |
-5 | fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
-  |           ^^^^    ^^^^^^^     ^^^^^^^     ^^^
-```
-
----
-## **生命周期注解**
-ref: https://kaisery.github.io/trpl-zh-cn/ch10-03-lifetime-syntax.html  
-```Rust
-fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
-    if x.len() > y.len() {
-        x
-    } else {
-        y
-    }
-}
-```
-
----
-
-## **Rust 语言**
-+ 强大的类型系统，Trait 语法，支持泛型（常量泛型），函数式编程
-+ 友好的包管理（相比 C/C++ 是一个大优势）
-+ 卫生宏，过程宏（内部展开，不影响上下文）
-+ 成长的社区
 
 ---
 
 ## **Rust 语言与嵌入式**
 **Rust 语言非常适合嵌入式软件开发**  
 
-+ 极小并且可定制的运行时 -> 性能
++ 极小的运行时 -> 性能
++ 独特的内存管理 -> 安全（所有权模型 -> 外设抽象）
++ （包管理工具， 强大的宏） -> 生产效率
++ 丰富的编译目标（RISC-V, Arm, MIPS)
++ **异步支持**（最小的异步抽象库 `nb` 和内置的 async/await 语法）
+
+---
+
+## 寄存器抽象
+`tock` 的寄存器抽象：  
+```Rust
+const UARTLITE_MMIO: usize = 0x4060_0000;
+register_structs! {
+    /// UartLite MMIO
+    /// |offset|register|description|
+    /// |---|---|---|
+    /// |0h|Rx FIFO|receive data fifo|
+    /// |04h|Tx FIFO|send data fifo|
+    /// |08h|status reg|IP 核状态寄存器|
+    /// |0ch|control reg|IP 核控制寄存器|
+    pub UartLite {
+        (0x00 => rx_fifo: ReadOnly<u32>),
+        (0x04 => tx_fifo: ReadWrite<u32>),
+        (0x08 => stat_reg: ReadOnly<u32, Status::Register>),
+        (0x0c => ctrl_reg: ReadWrite<u32, Control::Register>),
+        (0x10 => @END),
+    },
+}
+```
+
+---
+
+## 寄存器抽象
+宏生成的结构体：  
+```Rust
+#[repr(C)]
+struct UartLite {
+    rx_fifo: ReadOnly<u32>,
+    tx_fifo: ReadWrite<u32>,
+    stat_reg: ReadOnly<u32, Status::Register>,
+    ctrl_reg: ReadWrite<u32, Control::Register>
+}
+```
+
+---
+
+## 对寄存器抽象进行封装
+```Rust
+impl UartLite {
+    pub fn new() -> &'static mut UartLite {
+        unsafe { &mut *(UARTLITE_MMIO as *mut UartLite) }
+    }
+    pub fn init(&mut self) {
+        self.ctrl_reg.write(Control::RST_TX.val(1));
+        self.ctrl_reg.write(Control::RST_RX.val(1));
+    }
+    pub fn putchar(&mut self, ch: char) {
+        while self.stat_reg.is_set(Status::TX_FULL) {}
+        self.tx_fifo.set(ch as u32);
+    }
+    pub fn getchar(&self) -> Result<u8, ()> {
+        match self.stat_reg.is_set(Status::RX_VALID) {
+            true => Ok(self.rx_fifo.get() as u8),
+            false => Err(()),
+        } 
+    }
+}
+```
+
+---
+
+## **Rust 语言与嵌入式**
+**Rust 语言非常适合嵌入式软件开发**  
+
++ 极小的运行时 -> 性能
 + 独特的内存管理 -> 安全（所有权模型 -> 外设抽象）
 + （包管理工具， 强大的宏） -> 生产效率
 + 丰富的编译目标（RISC-V, Arm, MIPS)
@@ -216,6 +163,92 @@ impl serial::Read<u8> for UartLite {
 
 ---
 
+## 使用运行时库的一个例子
+```Rust
+[no_std]
+[no_main]
+
+extern crate panic_halt;
+use riscv_rt::entry;
+
+// 使用 entry 标记逻辑代码入口点
+// 在这之前 riscv-rt 已经做了一些准备工作
+#[entry]
+fn main() -> ! {
+    // 逻辑代码
+    loop { }
+}
+```
+
+---
+
+## 运行时库处理机器模式中断和异常
+```Rust
+#[link_section = ".trap.rust"]
+#[export_name = "_start_trap_rust"]
+pub extern "C" fn start_trap_rust(trap_frame: *const TrapFrame) {
+    extern "C" {
+        fn ExceptionHandler(trap_frame: &TrapFrame);
+        fn DefaultHandler();
+    }
+    unsafe {
+        let cause = mcause::read();
+        if cause.is_exception() {
+            ExceptionHandler(&*trap_frame)
+        } else {
+            let code = cause.code();
+            if code < __INTERRUPTS.len() {
+                let h = &__INTERRUPTS[code];
+                if h.reserved == 0 {
+                    DefaultHandler();
+                } else {
+                    (h.handler)();
+                }
+            } else {
+                DefaultHandler();
+            }
+        }
+    }
+}
+```
+
+---
+
+## 运行时库处理机器模式中断和异常
+```Rust
+#[no_mangle]
+pub static __INTERRUPTS: [Vector; 12] = [
+    Vector { handler: UserSoft },
+    Vector {
+        handler: SupervisorSoft,
+    },
+    Vector { reserved: 0 },
+    Vector {
+        handler: MachineSoft,
+    },
+    Vector { handler: UserTimer },
+    Vector {
+        handler: SupervisorTimer,
+    },
+    Vector { reserved: 0 },
+    Vector {
+        handler: MachineTimer,
+    },
+    Vector {
+        handler: UserExternal,
+    },
+    Vector {
+        handler: SupervisorExternal,
+    },
+    Vector { reserved: 0 },
+    Vector {
+        handler: MachineExternal,
+    },
+];
+```
+
+---
+
 ## **embedded-hal 标准**
 + Rust 嵌入式社区统一的标准
 + 这个库是对外设本身的抽象，提供一系列的 Trait,不涉及具体的实现
@@ -251,6 +284,7 @@ impl serial::Read<u8> for UartLite {
 ---
 
 ## **RustSBI**
+在 k210 平台上模拟 `sfence.vma` 指令运行:  
 ```Rust
 Trap::Exception(Exception::IllegalInstruction) => {
     let vaddr = mepc::read();
@@ -280,6 +314,63 @@ Trap::Exception(Exception::IllegalInstruction) => {
     }
 }
 ```
+---
+
+## **RustSBI**
+k210 平台没有 S 态外部中断，通过 SBI 来解决这个问题：  
++ 通过一个 SBI 调用，让操作系统内核传一个 S 态外部中断处理函数指针给 SBI
++ SBI 收到 M 态外部中断，跳转到这个函数地址去运行
++ 不是很优美的处理方法：该函数运行在 M 态
+
+---
+
+## **RustSBI**
+```Rust
+Trap::Exception(Exception::SupervisorEnvCall) => {
+if trap_frame.a7 == 0x0A000004 && trap_frame.a6 == 0x210 {
+    // trap_frame.a0 是操作系统内核传过来的函数指针
+    unsafe { DEVINTRENTRY = trap_frame.a0; }
+    // enable mext
+    unsafe { mie::set_mext(); }
+    // return values
+    trap_frame.a0 = 0; // SbiRet::error = SBI_SUCCESS
+    trap_frame.a1 = 0; // SbiRet::value = 0
+} else {
+    todo!()
+}
+mepc::write(mepc::read().wrapping_add(4));
+}
+```
+
+---
+
+## **RustSBI**
+```Rust
+Trap::Interrupt(Interrupt::MachineExternal) => {
+    // RustSBI 收到 M 态外部中断
+    unsafe {
+        let mut mstatus: usize;
+        llvm_asm!("csrr $0, mstatus" : "=r"(mstatus) ::: "volatile");
+        mstatus |= 1 << 17;
+        let mpp = (mstatus >> 11) & 3;
+        mstatus = mstatus & !(3 << 11);
+        mstatus |= 1 << 11;
+        llvm_asm!("csrw mstatus, $0" :: "r"(mstatus) :: "volatile");
+        fn devintr() {
+            unsafe {
+                // 跳转到 DEVINTRENTRY 中运行
+                llvm_asm!("jalr 0($0)" :: "r"(DEVINTRENTRY) : "ra" : "volatile");
+            }
+        }
+        devintr();
+        mstatus = mstatus &!(3 << 11);
+        mstatus |= mpp << 11;
+        mstatus -= 1 << 17;
+        llvm_asm!("csrw mstatus, $0" :: "r"(mstatus) :: "volatile");
+    }
+}
+```
+
 ---
 
 ## **谢谢各位**
