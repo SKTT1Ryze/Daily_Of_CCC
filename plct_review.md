@@ -5,11 +5,10 @@ marp: true
 <!-- 2021-03-24 -->
 
 # **RISC-V 与 Rust 语言与嵌入式**
-华中科技大学计算机科学与技术学院  
 车春池  
 2021-03-24  
-[email](linuxgnulover@gmail.com)  
-[github](https://github.com/SKTT1Ryze)  
+email: linuxgnulover@gmail.com  
+github: https://github.com/SKTT1Ryze  
 
 ---
 
@@ -18,6 +17,7 @@ marp: true
 ## **Outline**
 + RISC-V 生态
 + RISC-V 与嵌入式
++ Rust 语言简介
 + Rust 语言与嵌入式
 + Rust 语言与 RISC-V 嵌入式
 
@@ -28,6 +28,10 @@ marp: true
 + 与 X86 架构对比：简化芯片开发，抛弃历史包裹，但目前在高性能处理核领域稍逊
 + 与 Arm 架构对比：开放，大道至简，但生态上需要进一步发展
 + 问题：IP 碎片化和高性能
+
+---
+## **RISC-V vs Arm**
+![riscv_vs_arm](./riscv_vs_arm.png)  
 
 ---
 
@@ -44,6 +48,13 @@ marp: true
     - 设计成本较低：简洁的设计风格（规整的指令结构，简单的寄存器组成），模块化
     <!-- - 维护成本较低：todo -->
     - 架构授权：完全开源，而 Arm 需要支付昂贵的授权费
+
+---
+## **Rust 语言简介**
++ 使用所有权模型管理内存（同时兼顾安全和高性能）
++ 所有权保证了不会出现二次释放问题
++ 生命周期机制保证了不会出现裸指针
++ 强大的类型系统（泛型，trait）
 
 ---
 
@@ -327,18 +338,18 @@ k210 平台没有 S 态外部中断，通过 SBI 来解决这个问题：
 ## **RustSBI**
 ```Rust
 Trap::Exception(Exception::SupervisorEnvCall) => {
-if trap_frame.a7 == 0x0A000004 && trap_frame.a6 == 0x210 {
-    // trap_frame.a0 是操作系统内核传过来的函数指针
-    unsafe { DEVINTRENTRY = trap_frame.a0; }
-    // enable mext
-    unsafe { mie::set_mext(); }
-    // return values
-    trap_frame.a0 = 0; // SbiRet::error = SBI_SUCCESS
-    trap_frame.a1 = 0; // SbiRet::value = 0
-} else {
-    todo!()
-}
-mepc::write(mepc::read().wrapping_add(4));
+    if trap_frame.a7 == 0x0A000004 && trap_frame.a6 == 0x210 {
+        // trap_frame.a0 是操作系统内核传过来的函数指针
+        unsafe { DEVINTRENTRY = trap_frame.a0; }
+        // enable mext
+        unsafe { mie::set_mext(); }
+        // return values
+        trap_frame.a0 = 0; // SbiRet::error = SBI_SUCCESS
+        trap_frame.a1 = 0; // SbiRet::value = 0
+    } else {
+        todo!()
+    }
+    mepc::write(mepc::read().wrapping_add(4));
 }
 ```
 
