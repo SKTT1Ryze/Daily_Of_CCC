@@ -30,10 +30,6 @@ github: https://github.com/SKTT1Ryze
 + 问题：IP 碎片化和高性能
 
 ---
-## **RISC-V vs Arm**
-![riscv_vs_arm](./riscv_vs_arm.png)  
-
----
 
 ## **RISC-V 生态**
 **RISC-V 在嵌入式领域大有可为**  
@@ -48,6 +44,10 @@ github: https://github.com/SKTT1Ryze
     - 设计成本较低：简洁的设计风格（规整的指令结构，简单的寄存器组成），模块化
     <!-- - 维护成本较低：todo -->
     - 架构授权：完全开源，而 Arm 需要支付昂贵的授权费
+
+---
+## **RISC-V vs Arm**
+![riscv_vs_arm](./riscv_vs_arm.png)  
 
 ---
 ## **Rust 语言简介**
