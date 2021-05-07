@@ -5292,3 +5292,22 @@ vring(virtio-ring) 包括三个部分，描述符数组 desc，可用的 availab
 desc 用于存储一些关联的描述符，每个描述符记录一个对 buffer 的描述，available ring 则用于 guest 端表示当前有哪些描述符是可用的，而 used ring 则表示 host 端哪些描述符已经使用。  
 virtio 使用 virtqueue 来实现 I/O 机制，每个 virtqueue 就是一个承载大量数据的队列，具体使用多少个队列取决于需求，例如 virtio 网络驱动程序使用两个队列（一个用于接收另一个用于发送），而 virtio-blk 仅使用一个队列。  
 
++ 前端驱动：如 virtio_blk, virtio_net 等，是客户机中存在的驱动程序模块
++ 后端驱动：在 qemu 中实现
++ virtio 层：虚拟队列接口，它在概念上讲前端驱动程序附加到后端处理程序，一个前端程序可以使用 0 个或多个队列，具体数量取决于需求
++ 虚拟队列：虚拟队列实际上被实现为客户机和 Hypervisor 之间的衔接点，但它可以通过任意方式实现，前提是客户机和 virtio 后端都遵循一定的标准，以相互匹配的方式实现它
++ virtio-ring 层：实现了环形缓冲区，用于保存前端驱动和后端处理程序执行的信息，并且它可以一次性保存前端驱动的多次 I/O 请求，再交由后端驱动程序批量处理，最后实际调用宿主机中的设备驱动完成物理层面上的 i/O 操作。
++ 每一个 virtio 设备（块设备，网卡）在系统层面看来，都是一个 PCI 设备，这些设备之间有共性部分，也有差异部分
+    - 共性部分：
+        - 都需要挂接相应的 buffer 队列操作 virtqueue_ops
+        - 都需要申请若干个 buffer 队列，当执行 I/O 输出时，需要向队列写入数据
+        - 都需要执行 pci_iomap 将设备配置寄存器区间映射到内存区间
+        - 都需要设置中断处理
+        - 等中断来了，都需要从队列中读出数据，并通知客户机系统，数据已经入队
+    - 差异部分：
+        - 与设备相关联的系统，业务，队列中写入的数据含义各不相同
+        - 例如，网卡在内核中是一个 net_device，与协议栈系统关联起来，同时向队列中写入什么数据，数据的含义如何，各个设备也不相同，队列中来了什么数据，是什么含义，怎么处理，各个设备也不相同
+
+接下来玩完整的英文文档：  
++ When the driver wants to send a buffer to the device, it fills in a slot in the descriptor table (or chains several together), and writes the descriptor index into the available ring. It then notifies the device.
++ When the device has finished a buffer, it writes the descriptor index into the used ring, and sends a used buffer notification.
