@@ -5758,3 +5758,17 @@ create procedure procedure_name(param)
 晚上结合飓风内核调试的时候发现有一些不太清楚原因的 bug，猜测是同步机制和内存管理的问题。同时我发现如果要把 virtio 驱动改成异步的，我目前对其的理解是不够的。  
 因此我打算再重新回头梳理一下整个项目代码，然后再仔细思考这个驱动库应该怎么写。  
 晚上剩余的时间看下陈渝老师写的 rCore 第三版教程中关于 virtio 设备驱动的内容，晚安。  
+
+
+<span id="Day283"></span>
+
+## Day 283 (2021/05/23)
+今天一整天都在写代码和 debug。  
+早上先把 virtio-driver 的 queue.rs 和 header.rs 的代码全部看了一遍，基本上掌握了实现细节，并没有发现什么问题。  
+中午没有睡觉，继续 debug。  
+发现了一个问题，就是放 IO 请求的结构体 BlockReq 和放 IO 回应的结构体 BlockResp 读出来的值非常奇怪，一开始怀疑是读的地址不对，经检查后发现并不是这个问题。  
+后面再 debug 了一段时间，发现是我使用的结构体 BlockReq 生命周期结束，被 drop 掉了，但是我还在使用它的 NonNull，因此读出来的值不对。  
+我使用的修复方法是将每个实例化的 BlockReq 和 BlockResp 结构体的所有权保存起来，确保它不会被编译器 drop 掉，这样一来这个 bug 就解决了。  
+但之前那个 scause 为 15 的 bug 还在，晚上一直在调这个 bug，后面大概定位到了是共享调度器的问题，可能是我之前提交的一个修改共享调度器实现的 pr 有问题，暂时还没找到。  
+打算后面再继续调共享调度器的 bug，现在先做下其他东西。  
+今天的成果：https://github.com/HUST-OS/async-virtio-driver/tree/fix  
