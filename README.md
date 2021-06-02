@@ -5852,3 +5852,110 @@ bevy 是一个 ecs 模式，基于 Rust 语言开发的游戏引擎，非常有�
 实验三就是研究分析类的了，还没做。  
 回到寝室，联系日语听力，复习文法，准备 7 月 6 号的日语考试。  
 晚安。  
+
+<span id="Day292"></span>
+
+## Day 292 (2021/06/01)
+今天是周二，早上起来后去上数据库系统原理课，晚到教室，里面在上公开课，不好意思打扰，因此在旁边找了个教室坐下来开始写数据库实验。  
+我的选题：机票预定系统。  
+系统功能的基本要求：  
++ 每个航班信息的输入（插入）
++ 每个航班的座位信息的输入（插入）
++ 当旅客进行机票预定时，输入旅客基本信息，系统为旅客安排航班，打印取票通知和账单（查询）
++ 旅客在飞机起飞前一天凭取票通知交款取票（查询，修改，删除）
++ 旅客能够退订机票
++ 能够查询每个航班的预定情况，计算航班的满座率
++ 包含事务，存储过程/触发器，视图，函数
++ 在程序中需要体现SQL和编程语言的结合
++ 包含至少以下数据表
+    - 航班信息表
+    - 航班座位情况表
+    - 旅客订票信息表
+    - 取票通知表
+    - 账单
+
+可以考虑创建下面的数据结构：  
+```Rust
+/// 航班信息
+struct Flight {
+    /// 航班编号
+    id: usize,
+    /// 客机型号
+    plane: String,
+    /// 起飞时间
+    departure_time: Date,
+    /// 预计飞行时间
+    flight_time: time:Duration,
+    /// 客容量
+    capacity: usize,
+    /// 航班的座位信息
+    seats: Vec<SeatInfo>,
+    /// 价格
+    price: usize
+}
+
+/// 航班的座位信息
+struct SeatInfo<'seat> {
+    /// 所属航班编号
+    flight_id: usize,
+    /// 排号，座位号，比如：11A
+    location: (usize, &'seat str),
+    /// 是否已经被预定
+    is_booked: bool
+}
+
+/// 旅客信息
+struct Passenger {
+    /// 身份证
+    id_card: String,
+    /// 姓名
+    name: String,
+    /// 已预定的机票
+    booked: Vec<BookedRecord>,
+}
+
+/// 预定信息
+struct BookedRecord {
+    /// 航班编号
+    flight_id: usize,
+    /// 状态
+    state: BookedState
+}
+
+enum BookedState {
+    /// 还没交款取票
+    NotPaied,
+    /// 已经交款取票但还没完成
+    PaiedNotFinished,
+    /// 已经完成
+    Finished
+}
+```
+
+需要的表格：  
++ 记录航班信息的表格(id, plane, departure_time, flight_time, capacity, price)
++ 记录航班座位信息的表格(flight_id, loc_row, loc_column, is_booked)
++ 记录旅客信息的表格(id_card, name, booked_record_id)
++ 记录航班状态的表格(flight_id, state)
++ 记录已完成状态航班信息的表格(flight_id, carried_num(实际载客量))
+
+对于系统功能的基本要求的初步实现思路：  
++ 插入航班信息，对于上面的 Filght 结构体实现插入数据库的方法，包括对航班信息表的插入，和对每个座位进行座位信息的插入
++ 插入航班座位信息，对于上面的 SeatInfo 结构体实现插入数据库的方法，包括对航班座位信息的插入
++ 旅客注册，既创建上面的 Passenger 结构体并且对该结构体实现插入数据库的方法，包括对旅客信息表的插入
++ 模拟时间流动
++ 每次时间改变的时候查相应的表格，改变航班的状态，并记录已经完成的航班信息，统计满客率
+
+<span id="Day293"></span>
+
+## Day 293 (2021/06/02)
+今天早上起床后去上物联网存储系统课，这次课上只去了 5 人。  
+下午在写编译原理实验。  
+一直写到晚上 10 点，实验三写完了。  
+晚上洛佳建成了 rustsbi 组织：https://github.com/rustsbi，我是初创成员之一。  
+差个 logo，我们打算画个好看的 logo 放上去。  
+2021 年 6 月 3 日，rustsbi 社区成立。  
+看了看洛佳写的 rustsbi-qemu 代码，发现生成器语法已经用上了，牛逼！  
+11 点之后是语言学习时间，先听了会托福听力，再听日语听力。  
+晚安。  
+
