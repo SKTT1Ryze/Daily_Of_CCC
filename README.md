@@ -5959,3 +5959,20 @@ enum BookedState {
 11 点之后是语言学习时间，先听了会托福听力，再听日语听力。  
 晚安。  
 
+<span id="Day294"></span>
+
+## Day 294 (2021/06/03)
+今天是周四，打算继续写数据库综合实验。  
+我选的是机票预定系统，需要的数据表如下：  
++ 航班信息表(id, plane, departure_time, flight_time, capacity, price)
++ 航班座位信息表(id, flight_id, loc_row, loc_column, is_booked)
++ 旅客信息表(id_card, name)
++ 预定信息表(id, pid_card, flight_id, state)
++ 取票通知表(id_card, notice_time)
++ 账单(id_card, price)
+
+貌似后面两个表可以合在一起，甚至可以都不需要，打算明天下午和老师讨论一下。  
+
+写到晚上 10 点，先休息一下，明天打算开始写 GUI 部分。  
+晚安。  
+
