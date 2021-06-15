@@ -6096,3 +6096,58 @@ bloom-filter:
 <span id="Day303"></span>
 
 ## Day 303 (2021/06/12)
+今天是周六，早上起来写物联网结课报告，我的选题是多维 bloom filter。  
+false positive 和 false negative 的意思：误报和漏报。  
+实际使用 Bloom Filter 时，一般会关注 false positive rate，因为这和额外开销相关。实际使用中，期望能给定一个 false positive rate 和将要插入的元素数量，能计算出分配多少的存储空间比较合适。  
+假设 BloomFilter 中元素总 bit 数量为 m,插入元素个数为 n，hash 函数个数为 k，false positive rate 记作 p，如果要最小化 false positive rate，可以有以下推导：  
+```
+k = -lnp / ln2;
+m = -n * lnp / (ln2) ^ 2
+```
+看了看这个项目的源码：https://github.com/nervosnetwork/bloom-filters，写得很好。我发现 bloom filter 这种结构非常适合用常量泛型来实现，这样子可以在编译期就知道 bloom filter 的规格，并且把数据放到栈上，可以减少一点运行时开销。  
+于是 fork 了这个项目，下午晚上在写这个东西：https://github.com/SKTT1Ryze/bloom-filters/tree/const-generic  
+可惜现在 Rust 的 const fn 里面不能使用浮点运算，只能让用户手动计算指定 bucket 的数量，带来一点负担。  
+晚上休息一下后开始写物联网实验报告。  
+写到三点睡了，晚安。  
+
+<span id="Day304"></span>
+
+## Day 304 (2021/06/13)
+今天早上起床后，开始写 Bloom Filter 的多维支持，写到下午两点写完了，去吃中午饭。  
+中午饭吃完后继续写物联网报告，写到晚上 6 点的时候基本上写完了。然后看邮箱，发现之前发到 [bloom-filters](https://github.com/nervosnetwork/bloom-filters) 这个项目的 issue 有回复了：https://github.com/nervosnetwork/bloom-filters/issues/10  
+项目作者回复说常量泛型可以作为一个 feature 切换在一个库里面支持，并欢迎我提出 pr。  
+一看到这个我就来劲了，立马开始整理代码，8 点的时候提了一个 [pr](https://github.com/nervosnetwork/bloom-filters/pull/11)，并加上了相应的文档，希望可以被 merge。  
+然后对接口技术的大作业做了点修改，打算在嵌入式实验 6 里面用上它。  
+然后考虑一下物联网实验怎么写，我发现物联网实验的对象存储系统服务可以使用 minio 这种比较成熟的系统，然后 benchmark 用 Rust 写。  
+于是打算重新熟悉一下 minio 这个系统的用法，后面开始做物联网实验了。  
+经过一番搞鼓，在 crate.io 上找到这个库：[rusty-s3](https://github.com/paolobarbolini/rusty-s3)  
+经过测试，非常好用，后面实验就基于这个库还有 minio 来进行了。  
+首先来考虑一下我需要测些什么数据：  
++ 延迟
++ 吞吐率
++ 传输率
+
+影响这些指标的参数有：  
++ 同一时间段发请求的客户端数量
++ 对象的数量
++ 对象的尺寸
+
+因此可以尝试定义这样一个 trait:  
+```Rust
+trait TestTask {
+    type T;
+    // 通过客户端数量，对象数量，对象尺寸生成一个测试任务
+    fn spawn(&mut self, clint_num: usize, obj_num: usize, obj_size: usize) -> Self;
+    // 运行测试
+    fn run(&mut self) -> impl Future<Output = T>;
+}
+```
+
+<span id="Day305"></span>
+
+## Day 305 (2021/06/14)
+昨天晚上 4 点的时候给 rusty-s3 这个项目提了一个 pr，一个外国小哥很快回复了我。  
+今天早上起床继续在 github 上与项目作者沟通，然后修改 pr，最终对方同意 merge，但由于 CI 目前有问题，暂时还没被 merge。  
+然后也修改了下给 bloom-filters 的 pr，并提交上去，作者暂时还没回复。（国内开发者）  
+因为这几天一直在写实验，有点累，今天大部分时间都在休息。  
+晚安。  
