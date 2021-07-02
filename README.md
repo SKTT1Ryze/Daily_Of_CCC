@@ -6315,3 +6315,6 @@ trait TestTask {
 ```sql
 create index index_name on table_name(key_name)
 ```
+
+今晚做了做 N1 真题，发现词汇文法部分错得太多，应该是及格不了了 orz。打算明天一天复习往年所有真题的词汇文法部分，临时抱佛脚。  
+晚安。  
