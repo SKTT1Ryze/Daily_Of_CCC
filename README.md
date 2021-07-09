@@ -6398,3 +6398,41 @@ create index index_name on table_name(key_name)
 
 ## Day 327 (2021/07/06)
 今天早上考完了大学本科最后一门考试，从小学一年级到现在21岁，长达十几年的考试生涯可能就此结束了。这十几年花了很多心思在考取高的分数上，希望后面可以有更加有趣的人生。  
+
+<span id="Day328"></span>
+
+## Day 328 (2021/07/07)
+今天早上去看牙齿。  
+下午在休息，晚上和同学去聚餐。三个寝室的同学，一个 12 个人，大学以来第一次和这么多同学一起聚餐，吃得很开心。  
+
+<span id="Day329"></span>
+
+## Day 329 (2021/07/08)
+今天首先让飓风内核支持了 RustSBI 的最新版本和 qemu-6.0.0 版本。之前有 issue 说 RustSBI 运行 qemu-6.0.0 的时候，会出现非法指令异常，我翻了翻 qemu 源码，发现了原因：  
+qemu-6.0.0 版本对 mret 指令的执行进行了 pmp 寄存器设置的检查：  
+```C
+target_ulong helper_mret(CPURISCVState *env, target_ulong cpu_pc_deb)
+{
+    ...
+    if (!pmp_get_num_rules(env) && (prev_priv != PRV_M)) {
+        riscv_raise_exception(env, RISCV_EXCP_ILLEGAL_INST, GETPC());
+    }
+    ...
+}
+```
+这里的意思是如果 pmp 规则数为 0，也就是 pmp 寄存器没有设置，则指令 mret 执行之后的特权级必须是 M 态，否则会产生非法指令异常。  
+旧版的 RustSBI 没有设置 pmp 寄存器，同时希望通过 mret 指令上升到 S 态，也就是说在旧版的 RustSBI 执行 mret 指令的时候，qemu 里面 `pmp_get_num_rules(env)` 的结果是 0，并且 prev_priv != PRV_M，因此会产生非法指令异常。  
+新版的 RustSBI 对 pmp 寄存器进行了设置，因此可以兼容 qemu-6.0.0 版本。  
+
+然后看文档学习了下 pmp 寄存器的相关用法，增加了几个配置，使得飓风内核可以运行在最新 RustSBI 和 qemu-6.0.0 上面了。  
+然后晚上开始给飓风内核写 xtask 支持。  
+晚安。  
+
+<span id="Day330"></span>
+
+## Day 330 (2021/07/09)
+今天早上起来继续写 xtask，写一早上已经差不多写完了，运行，反汇编，调试等功能都在 xtask 提供了，很快就可以不用 justfile 了。  
+后面打算添加一些检测系统中有哪些软件的功能，比如查看系统里面是否装了 rust-objcopy，如果没有是否装了 riscv64-unknown-elf-objcopy，这样子的功能。  
+下午写并行报告，写好并打印交给学委了。  
+晚上写编译原理报告，写好了词法分析部分，明天起来继续写。   
+晚安。  
